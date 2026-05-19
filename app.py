@@ -3,6 +3,57 @@ from groq import Groq
 import sqlite3
 
 app = Flask(__name__)
+def init_db():
+
+    conn = sqlite3.connect("database.db")
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS users (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        password TEXT
+
+    )
+
+    """)
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS recipes (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        title TEXT,
+        ingredients TEXT,
+        instructions TEXT
+
+    )
+
+    """)
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS meal_plans (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        day TEXT,
+        title TEXT,
+        ingredients TEXT,
+        instructions TEXT
+
+    )
+
+    """)
+
+    conn.commit()
+
+    conn.close()
+
+init_db()
 app.secret_key = "planmyplate_secret"
 
 import os
