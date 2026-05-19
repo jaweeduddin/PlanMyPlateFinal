@@ -5,7 +5,7 @@ import sqlite3
 app = Flask(__name__)
 def init_db():
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
 
     cursor = conn.cursor()
 
@@ -65,7 +65,7 @@ client = Groq(
 
 def init_db():
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     # USERS TABLE
@@ -117,7 +117,7 @@ def meal_planner():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     # SAVE PLAN
@@ -319,7 +319,7 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect("/tmp/database.db")
         cursor = conn.cursor()
 
         cursor.execute(
@@ -344,7 +344,7 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect("/tmp/database.db")
         cursor = conn.cursor()
 
         cursor.execute(
@@ -397,7 +397,7 @@ def add_recipe():
 
         user_id = session["user_id"]
 
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect("/tmp/database.db")
         cursor = conn.cursor()
 
         cursor.execute(
@@ -431,7 +431,7 @@ def save_nutrition_recipe():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     cursor.execute(
@@ -457,7 +457,7 @@ def recipes():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     cursor.execute(
@@ -484,7 +484,7 @@ def delete_recipe(id):
     if "user_id" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     cursor.execute(
@@ -503,7 +503,7 @@ def delete_meal(id):
     if "user_id" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     cursor.execute(
@@ -680,7 +680,7 @@ def save_ai_recipe():
 
         instructions = full_recipe
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("/tmp/database.db")
     cursor = conn.cursor()
 
     cursor.execute(
