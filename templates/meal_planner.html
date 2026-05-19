@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+    <div class="logo">
+        PlanMyPlate 🍽️
+    </div>
+
+    <a href="/dashboard"
+       class="nav-home-btn">
+
+        🏠 Dashboard
+
+    </a>
+
+</div>
+
+    <div class="hero">
+
+        <h1>Weekly Meal Planner 📅</h1>
+
+        <form method="POST">
+
+            <select name="day">
+
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+
+            </select>
+
+            <br><br>
+
+            <div style="position: relative;">
+
+    <input
+        type="text"
+        id="meal-search"
+        placeholder="🔍 Search your recipes..."
+        onkeyup="showMealSuggestions()"
+        autocomplete="off">
+
+    <input
+        type="hidden"
+        name="recipe_id"
+        id="selected-recipe-id">
+
+    <div
+        id="meal-suggestions"
+        class="suggestions-box">
+    </div>
+
+</div>
+
+            <br><br>
+
+            <button class="btn">
+                Save Meal Plan
+            </button>
+
+        </form>
+
+        <br><br>
+
+        <h2>Your Weekly Plans 🍲</h2>
+
+        {% for plan in plans %}
+
+<div class="recipe-card">
+
+    <h3>
+        📅 {{ plan[0] }}
+    </h3>
+
+    <p>
+        🍽️ {{ plan[1] }}
+    </p>
+
+    <div class="recipe-section">
+
+        <h3>🥕 Ingredients</h3>
+
+        <div class="recipe-text">
+            {{ plan[2] }}
+        </div>
+
+    </div>
+
+    <div class="recipe-section">
+
+        <h3>👨‍🍳 Instructions</h3>
+
+        <div class="recipe-text">
+            {{ plan[3] }}
+        </div>
+
+    </div>
+
+    <a href="/delete_meal/{{ plan[4] }}"
+       class="btn delete-btn">
+
+        Delete Plan ❌
+
+    </a>
+
+</div>
+
+{% endfor %}
+
+    </div>
+<script>
+
+const mealRecipes = [
+
+    {% for recipe in recipes %}
+
+    {
+        id: "{{ recipe[0] }}",
+        title: "{{ recipe[2] }}"
+    },
+
+    {% endfor %}
+];
+
+function showMealSuggestions() {
+
+    const input =
+        document.getElementById(
+            "meal-search"
+        );
+
+    const box =
+        document.getElementById(
+            "meal-suggestions"
+        );
+
+    const value =
+        input.value.toLowerCase();
+
+    box.innerHTML = "";
+
+    if (value.length === 0) {
+
+        box.style.display = "none";
+        return;
+    }
+
+    const filtered =
+        mealRecipes.filter(recipe =>
+
+            recipe.title.toLowerCase()
+            .includes(value)
+        );
+
+    if (filtered.length > 0) {
+
+        box.style.display = "block";
+
+    } else {
+
+        box.style.display = "none";
+    }
+
+    filtered.forEach(recipe => {
+
+        const div =
+            document.createElement("div");
+
+        div.classList.add(
+            "suggestion-item"
+        );
+
+        div.innerText =
+            recipe.title;
+
+        div.onclick = function() {
+
+            document.getElementById(
+                "meal-search"
+            ).value = recipe.title;
+
+            document.getElementById(
+                "selected-recipe-id"
+            ).value = recipe.id;
+
+            box.style.display = "none";
+        };
+
+        box.appendChild(div);
+    });
+}
+
+</script>
+</body>
+</html>

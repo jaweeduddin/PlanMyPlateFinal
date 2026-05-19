@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+    <div class="logo">
+        PlanMyPlate 🍽️
+    </div>
+
+    <a href="/dashboard"
+       class="nav-home-btn">
+
+        🏠 Dashboard
+
+    </a>
+
+</div>
+
+    <div class="hero">
+
+        <div class="recipe-card">
+
+            <h1>
+                Welcome {{ username }} 🎉
+            </h1>
+
+            <p>
+                Your smart AI meal planning assistant.
+            </p>
+            <div class="search-wrapper">
+
+    <div style="
+        position: relative;
+        width: 100%;
+        max-width: 760px;
+    ">
+
+        <input
+            type="text"
+            id="recipe-search"
+            class="search-bar"
+            placeholder="🔍 Search any recipe..."
+            onkeyup="showGlobalRecipeSuggestions()"
+            autocomplete="off">
+
+        <div
+            id="global-recipe-suggestions"
+            class="suggestions-box">
+        </div>
+
+    </div>
+
+</div>
+<div class="dashboard-grid">
+
+    <a href="/add_recipe"
+   class="dashboard-card"
+   data-name="add recipe">
+        <span>➕</span>
+        <h3>Add Recipe</h3>
+    </a>
+
+<a href="/recipes"
+   class="dashboard-card"
+   data-name="favorite recipes">
+           <span>🍽️</span>
+        <h3>Favorite Recipes</h3>
+    </a>
+
+    <a href="/ai_generator"
+   class="dashboard-card"
+   data-name="ai generator">
+        <span>🤖</span>
+        <h3>AI Generator</h3>
+    </a>
+
+    <a href="/meal_planner"
+   class="dashboard-card"
+   data-name="meal planner">
+        <span>📅</span>
+        <h3>Meal Planner</h3>
+    </a>
+
+    <a href="/nutrition_planner"
+   class="dashboard-card"
+   data-name="nutrition planner">
+        <span>🥗</span>
+        <h3>Nutrition Planner</h3>
+    </a>
+
+    <a href="/logout"
+   class="dashboard-card logout-card"
+   data-name="logout">
+        <span>🚪</span>
+        <h3>Logout</h3>
+    </a>
+
+</div>
+
+        </div>
+
+    </div>
+
+<script>
+
+const recipeSuggestions = [
+
+    // Biryani
+    "Chicken Biryani",
+    "Hyderabadi Biryani",
+    "Veg Biryani",
+
+    // Rice
+    "Fried Rice",
+    "Chicken Fried Rice",
+    "Veg Fried Rice",
+    "Jeera Rice",
+    "Pulao",
+
+    // Pasta & Noodles
+    "White Sauce Pasta",
+    "Red Sauce Pasta",
+    "Noodles",
+    "Ramen",
+    "Maggi",
+
+    // Pizza & Burgers
+    "Pizza",
+    "Burger",
+    "Cheese Burger",
+    "Veg Burger",
+
+    // South Indian
+    "Masala Dosa",
+    "Plain Dosa",
+    "Idli",
+    "Medu Vada",
+    "Upma",
+    "Poha",
+
+    // Indian Main Course
+    "Butter Chicken",
+    "Chicken Curry",
+    "Paneer Butter Masala",
+    "Palak Paneer",
+    "Dal",
+    "Rajma",
+    "Chole",
+    "Bhindi Fry",
+    "Aloo Gobi",
+    "Khichdi",
+
+    // Bread
+    "Naan",
+    "Roti",
+    "Paratha",
+
+    // Snacks
+    "Samosa",
+    "Pakora",
+    "Spring Roll",
+    "Momos",
+    "French Fries",
+    "Chicken Nuggets",
+    "Shawarma",
+    "Frankie",
+    "Kebab",
+
+    // Street Food
+    "Pani Puri",
+    "Bhel Puri",
+    "Sev Puri",
+    "Pav Bhaji",
+    "Dhokla",
+    "Chaat",
+
+    // Wraps
+    "Wrap",
+    "Burrito",
+    "Tacos",
+
+    // Soups & Salads
+    "Tomato Soup",
+    "Chicken Soup",
+    "Salad",
+
+    // Egg Recipes
+    "Omelette",
+    "Boiled Egg",
+    "Egg Curry",
+
+    // Fish
+    "Fish Curry",
+    "Fried Fish",
+
+    // Desserts
+    "Cake",
+    "Brownie",
+    "Cookies",
+    "Donut",
+    "Ice Cream",
+    "Gulab Jamun",
+    "Rasmalai",
+    "Jalebi",
+
+    // Breakfast
+    "Pancake",
+    "Waffle",
+    "Croissant",
+    "Sandwich",
+
+    // Drinks
+    "Tea",
+    "Coffee",
+    "Lassi",
+    "Milkshake",
+    "Mango Shake",
+    "Oreo Shake",
+    "Smoothie",
+    "Mojito",
+    "Mocktail",
+    "Juice",
+    "Falooda",
+
+    // International
+    "Lasagna",
+    "Sushi",
+    "Dumplings",
+    "Falafel",
+    "Steak",
+    "Grilled Chicken",
+    "Tandoori Chicken",
+    "Hot Dog"
+];
+
+function showGlobalRecipeSuggestions() {
+
+    const input =
+        document.getElementById(
+            "recipe-search"
+        );
+
+    const box =
+        document.getElementById(
+            "global-recipe-suggestions"
+        );
+
+    const value =
+        input.value.toLowerCase();
+
+    box.innerHTML = "";
+
+    if (value.length === 0) {
+
+        box.style.display = "none";
+        return;
+    }
+
+    const filtered =
+    recipeSuggestions.filter(recipe =>
+
+            recipe.toLowerCase()
+            .includes(value)
+        );
+
+    if (filtered.length > 0) {
+
+        box.style.display = "block";
+
+    } else {
+
+        box.style.display = "none";
+    }
+
+    filtered.forEach(recipe => {
+
+        const div =
+            document.createElement("div");
+
+        div.classList.add("suggestion-item");
+
+        div.innerText = recipe;
+
+        div.onclick = function() {
+
+    window.location.href =
+        "/recipe_search?recipe=" +
+        encodeURIComponent(recipe);
+};
+
+        box.appendChild(div);
+    });
+}
+
+</script>
+
+</body>
+</html>

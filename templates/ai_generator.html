@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Generator</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+    <div class="logo">
+        PlanMyPlate 🍽️
+    </div>
+
+    <a href="/dashboard"
+       class="nav-home-btn">
+
+        🏠 Dashboard
+
+    </a>
+
+</div>
+
+    <div class="hero">
+
+        <div class="recipe-card">
+
+            <h1>AI Recipe Generator 🤖</h1>
+
+            <form method="POST">
+
+                <div class="voice-box">
+
+    <div style="width: 100%; position: relative;">
+
+        <textarea
+            id="ingredients"
+            name="ingredients"
+            placeholder="Enter ingredients"
+            onkeyup="showSuggestions()"></textarea>
+
+        <div id="suggestions-box"
+             class="suggestions-box">
+        </div>
+
+    </div>
+
+    <button type="button"
+            class="mic-btn"
+            onclick="startVoice()">
+        🎤
+    </button>
+
+</div>
+
+                <br><br>
+
+                <button class="btn">
+                    Generate Recipe
+                </button>
+
+            </form>
+
+        </div>
+
+        {% if recipe %}
+
+        <div class="recipe-card">
+
+            <h2>Generated Recipe 🍲</h2>
+
+            <pre class="recipe-text">
+{{ recipe }}
+            </pre>
+
+            <pre class="recipe-text">
+{{ recipe }}
+</pre>
+
+<form action="/save_ai_recipe"
+      method="POST">
+
+    <input
+    type="text"
+    name="title"
+    placeholder="Enter recipe name..."
+    required>
+
+    
+
+    <input
+        type="hidden"
+        name="instructions"
+        value="{{ recipe }}">
+
+    <button class="btn">
+
+        Save To Favorites ❤️
+
+    </button>
+
+</form>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+<script>
+const ingredientsList = [
+
+    // Vegetables
+    "potato",
+    "tomato",
+    "onion",
+    "carrot",
+    "cabbage",
+    "capsicum",
+    "broccoli",
+    "cauliflower",
+    "spinach",
+    "peas",
+    "corn",
+    "brinjal",
+    "eggplant",
+    "ladyfinger",
+    "okra",
+    "pumpkin",
+    "bottle gourd",
+    "radish",
+    "beetroot",
+    "sweet potato",
+    "green beans",
+    "mushroom",
+    "lettuce",
+    "cucumber",
+    "zucchini",
+
+    // Fruits
+    "banana",
+    "apple",
+    "orange",
+    "mango",
+    "papaya",
+    "watermelon",
+    "melon",
+    "grapes",
+    "pineapple",
+    "strawberry",
+    "blueberry",
+    "kiwi",
+    "pear",
+    "pomegranate",
+    "avocado",
+    "lemon",
+
+    // Meats
+    "chicken",
+    "mutton",
+    "beef",
+    "fish",
+    "prawns",
+    "egg",
+    "meat",
+    "turkey",
+    "sausage",
+
+    // Dairy
+    "milk",
+    "cheese",
+    "butter",
+    "paneer",
+    "curd",
+    "yogurt",
+    "cream",
+    "ghee",
+
+    // Grains
+    "rice",
+    "wheat",
+    "flour",
+    "oats",
+    "bread",
+    "pasta",
+    "noodles",
+    "quinoa",
+    "cornflakes",
+
+    // Pulses
+    "dal",
+    "lentils",
+    "chickpeas",
+    "rajma",
+    "black beans",
+    "soybeans",
+    "peas",
+
+    // Spices
+    "salt",
+    "sugar",
+    "turmeric",
+    "chili",
+    "black pepper",
+    "cumin",
+    "coriander",
+    "garam masala",
+    "cardamom",
+    "clove",
+    "cinnamon",
+    "mustard seeds",
+    "paprika",
+    "oregano",
+
+    // Herbs
+    "mint",
+    "coriander leaves",
+    "parsley",
+    "basil",
+    "methi",
+    "curry leaves",
+
+    // Oils & Sauces
+    "oil",
+    "olive oil",
+    "soy sauce",
+    "vinegar",
+    "tomato sauce",
+    "mayonnaise",
+    "ketchup",
+    "mustard sauce",
+
+    // Nuts & Dry Fruits
+    "almonds",
+    "cashews",
+    "walnuts",
+    "raisins",
+    "dates",
+    "pistachios",
+
+    // Misc
+    "garlic",
+    "ginger",
+    "honey",
+    "jam",
+    "chocolate",
+    "coffee",
+    "tea",
+    "coconut",
+    "peanut butter"
+];
+function showSuggestions() {
+
+    const input =
+        document.getElementById("ingredients");
+
+    const box =
+        document.getElementById("suggestions-box");
+
+    const words =
+    input.value.toLowerCase().split(",");
+
+const value =
+    words[words.length - 1].trim();
+
+    box.innerHTML = "";
+
+    if (value.length === 0) {
+
+        return;
+    }
+
+    const filtered =
+        ingredientsList.filter(item =>
+            item.startsWith(value)
+        );
+
+    filtered.forEach(item => {
+
+        const div =
+            document.createElement("div");
+
+        div.classList.add("suggestion-item");
+
+        div.innerText = item;
+
+        div.onclick = function() {
+
+    words[words.length - 1] = " " + item;
+
+    input.value = words.join(",");
+
+    box.innerHTML = "";
+};
+
+        box.appendChild(div);
+    });
+}
+function startVoice() {
+
+    if (!('webkitSpeechRecognition' in window)) {
+
+        alert("Voice recognition not supported.");
+
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+
+        const transcript =
+            event.results[0][0].transcript;
+
+        document.getElementById("ingredients").value =
+            transcript;
+    };
+}
+
+</script>
+<script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+</body>
+</html>

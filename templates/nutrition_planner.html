@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Nutrition Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+    <div class="logo">
+        PlanMyPlate 🍽️
+    </div>
+
+    <a href="/dashboard"
+       class="nav-home-btn">
+
+        🏠 Dashboard
+
+    </a>
+
+</div>
+
+    <div class="hero">
+
+        <h1>AI Nutrition Planner 🥗</h1>
+
+        <form method="POST">
+
+            <input type="number"
+                   name="age"
+                   placeholder="Enter Age">
+
+            <br><br>
+
+            <input type="number"
+                   name="weight"
+                   placeholder="Enter Weight (kg)">
+
+            <br><br>
+
+            <input type="number"
+                   name="height"
+                   placeholder="Enter Height (cm)">
+
+            <br><br>
+
+            <select name="goal">
+
+                <option>Weight Loss</option>
+                <option>Weight Gain</option>
+                <option>Maintain Weight</option>
+
+            </select>
+
+            <br><br>
+
+            <div class="voice-box">
+
+    <div style="position: relative;">
+
+    <textarea
+        id="nutrition-ingredients"
+        name="ingredients"
+        placeholder="Enter ingredients"
+        onkeyup="showSuggestions(
+            'nutrition-ingredients',
+            'nutrition-suggestions'
+        )">{{ ingredients }}</textarea>
+
+    <div
+        id="nutrition-suggestions"
+        class="suggestions-box">
+    </div>
+
+</div>
+
+    <button type="button"
+            class="mic-btn"
+            onclick="startVoice()">
+        🎤
+    </button>
+
+</div>
+
+            <br><br>
+
+            <button class="btn">
+                Generate Nutrition Plan
+            </button>
+
+        </form>
+{% if bmi_message %}
+
+<div class="recipe-card">
+
+    <h2>Health Warning ⚠️</h2>
+
+    <pre class="recipe-text">
+{{ bmi_message }}
+    </pre>
+
+</div>
+
+{% endif %}
+        {% if result %}
+
+        <div class="recipe-card">
+
+            <h2>Your AI Nutrition Plan 🍎</h2>
+
+            <pre class="recipe-text">
+{{ result }}
+            </pre>
+            <form action="/save_nutrition_recipe" method="POST">
+
+    <input
+    type="text"
+    name="title"
+    placeholder="Enter recipe name..."
+    required>
+
+    <input type="hidden"
+           name="ingredients"
+           value="{{ ingredients }}">
+
+    <input type="hidden"
+           name="instructions"
+           value="{{ result }}">
+
+    <button class="btn">
+        Add To Favorites ❤️
+    </button>
+
+</form>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+<script>
+
+function startVoice() {
+
+    if (!('webkitSpeechRecognition' in window)) {
+
+        alert("Voice recognition not supported.");
+
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+
+        const transcript =
+            event.results[0][0].transcript;
+
+        document.getElementById("ingredients").value =
+            transcript;
+    };
+
+    recognition.onerror = function(event) {
+
+        alert(
+            "Voice recognition error: " +
+            event.error
+        );
+    };
+}
+
+</script><script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+
+</body>
+</html>

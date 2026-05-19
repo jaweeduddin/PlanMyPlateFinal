@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Add Recipe</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+    <div class="logo">
+        PlanMyPlate 🍽️
+    </div>
+
+    <a href="/dashboard"
+       class="nav-home-btn">
+
+        🏠 Dashboard
+
+    </a>
+
+</div>
+
+    <div class="hero">
+
+        <div class="recipe-card">
+
+            <h1>
+                Add New Recipe 🍲
+            </h1>
+
+<form method="POST" autocomplete="off">
+                <!-- RECIPE TITLE -->
+
+                <div style="position: relative; z-index: 9999;">
+
+                    <input
+                        type="text"
+                        id="recipe-title"
+                        name="title"
+                        placeholder="Recipe Title"
+                        onkeyup="showRecipeSuggestions()">
+
+                    <div
+                        id="recipe-name-suggestions"
+                        class="suggestions-box">
+                    </div>
+
+                </div>
+
+                <br><br>
+
+                <!-- INGREDIENTS -->
+
+                <div style="position: relative;">
+
+                    <textarea
+                        id="recipe-ingredients"
+                        name="ingredients"
+                        placeholder="Ingredients"
+                        onkeyup="showSuggestions(
+                            'recipe-ingredients',
+                            'recipe-suggestions'
+                        )"></textarea>
+
+                    <div
+                        id="recipe-suggestions"
+                        class="suggestions-box">
+                    </div>
+
+                </div>
+
+                <br><br>
+
+                <!-- INSTRUCTIONS -->
+
+                <textarea
+                    id="recipe-instructions"
+                    name="instructions"
+                    placeholder="Instructions"></textarea>
+
+                <br><br>
+
+                <button class="btn">
+
+                    Save Recipe ❤️
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+<!-- RECIPE NAME AI SEARCH -->
+
+<script>
+
+const recipeNames = [
+
+    "Chicken Biryani",
+    "Hyderabadi Biryani",
+    "Veg Biryani",
+    "White Sauce Pasta",
+    "Red Sauce Pasta",
+    "Masala Dosa",
+    "Paneer Butter Masala",
+    "Fried Rice",
+    "Chicken Fried Rice",
+    "Tomato Soup",
+    "Burger",
+    "Pizza",
+    "Shawarma",
+    "Noodles",
+    "Momos",
+    "Chicken Curry",
+    "Butter Chicken",
+    "Palak Paneer",
+    "Samosa",
+    "Pav Bhaji"
+];
+
+function showRecipeSuggestions() {
+
+    const input =
+        document.getElementById("recipe-title");
+
+    const box =
+        document.getElementById(
+            "recipe-name-suggestions"
+        );
+
+    const value =
+        input.value.toLowerCase();
+
+    box.innerHTML = "";
+box.style.display = "none";
+    if (value.length === 0) {
+
+        return;
+    }
+
+    const filtered =
+        recipeNames.filter(recipe =>
+
+            recipe.toLowerCase()
+            .includes(value)
+        );
+
+    filtered.forEach(recipe => {
+
+        const div =
+            document.createElement("div");
+
+        div.classList.add("suggestion-item");
+
+        div.innerText = recipe;
+
+        div.onclick = async function() {
+
+    input.value = recipe;
+
+    box.innerHTML = "";
+
+    document.getElementById(
+        "recipe-ingredients"
+    ).value = "Generating ingredients...";
+
+    document.getElementById(
+        "recipe-instructions"
+    ).value = "Generating instructions...";
+
+    const response = await fetch(
+        "/generate_recipe_details",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                "application/x-www-form-urlencoded"
+            },
+
+            body:
+                "recipe_name=" +
+                encodeURIComponent(recipe)
+        }
+    );
+
+    const data = await response.text();
+
+    const ingredients =
+        data.split("INSTRUCTIONS:")[0]
+        .replace("INGREDIENTS:", "")
+        .trim();
+
+    const instructions =
+        data.split("INSTRUCTIONS:")[1]
+        .trim();
+
+    document.getElementById(
+        "recipe-ingredients"
+    ).value = ingredients;
+
+    document.getElementById(
+        "recipe-instructions"
+    ).value = instructions;
+};
+
+        box.appendChild(div);
+    });
+}
+
+</script>
+
+<!-- INGREDIENT AUTOCOMPLETE -->
+
+<script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+
+</body>
+</html>
