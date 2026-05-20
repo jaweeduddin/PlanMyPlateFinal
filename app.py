@@ -1,9 +1,80 @@
 from flask import Flask, render_template, request, redirect, session
 from groq import Groq
-import sqlite3
-
+from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+class User(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    username = db.Column(
+        db.String(100)
+    )
+
+    email = db.Column(
+        db.String(100),
+        unique=True
+    )
+
+    password = db.Column(
+        db.String(100)
+    )
+
+
+class Recipe(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    user_id = db.Column(
+        db.Integer
+    )
+
+    title = db.Column(
+        db.String(200)
+    )
+
+    ingredients = db.Column(
+        db.Text
+    )
+
+    instructions = db.Column(
+        db.Text
+    )
+
+
+class MealPlan(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    user_id = db.Column(
+        db.Integer
+    )
+
+    day = db.Column(
+        db.String(50)
+    )
+
+    recipe_id = db.Column(
+        db.Integer
+    )
+
+
+with app.app_context():
+
+    db.create_all()
 
 
 app.secret_key = "planmyplate_secret"
@@ -17,43 +88,11 @@ client = Groq(
 
 def init_db():
 
-    conn = sqlite3.connect("/tmp/database.db")
+   
     cursor = conn.cursor()
 
     # USERS TABLE
-    cursor.execute(
-        "DROP TABLE IF EXISTS users"
-)
-    cursor.execute('''
     
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            email TEXT,
-            password TEXT
-        )
-    ''')
-
-    # RECIPES TABLE
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS recipes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            title TEXT,
-            ingredients TEXT,
-            instructions TEXT
-        )
-    ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS meal_plans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        day TEXT,
-        recipe_id INTEGER
-    )
-''')
-    conn.commit()
-    conn.close()
 
 init_db()
 
@@ -73,7 +112,7 @@ def meal_planner():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("/tmp/database.db")
+#
     cursor = conn.cursor()
 
     # SAVE PLAN
@@ -84,49 +123,9 @@ def meal_planner():
         if not recipe_id:
             return "Please add recipes first"
 
-        cursor.execute(
-            """
-            INSERT INTO meal_plans
-            (user_id, day, recipe_id)
+        
 
-            VALUES (?, ?, ?)
-            """,
-            (user_id, day, recipe_id)
-        )
-
-        conn.commit()
-
-    # GET USER RECIPES
-    cursor.execute(
-        "SELECT * FROM recipes WHERE user_id=?",
-        (user_id,)
-    )
-
-    recipes = cursor.fetchall()
-
-    # GET MEAL PLANS WITH RECIPE DATA
-    cursor.execute(
-        """
-        SELECT
-meal_plans.day,
-recipes.title,
-recipes.ingredients,
-recipes.instructions,
-meal_plans.id  
-
-        FROM meal_plans
-
-        JOIN recipes
-        ON meal_plans.recipe_id = recipes.id
-
-        WHERE meal_plans.user_id=?
-        """,
-        (user_id,)
-    )
-
-    plans = cursor.fetchall()
-
-    conn.close()
+        
 
     return render_template(
         "meal_planner.html",
@@ -275,16 +274,17 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("/tmp/database.db")
-        cursor = conn.cursor()
+        new_user = User(
 
-        cursor.execute(
-            "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-            (username, email, password)
+            username=username,
+            email=email,
+            password=password
+
         )
 
-        conn.commit()
-        conn.close()
+        db.session.add(new_user)
+
+        db.session.commit()
 
         return redirect("/login")
 
@@ -300,27 +300,21 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("/tmp/database.db")
-        cursor = conn.cursor()
+        user = User.query.filter_by(
 
-        cursor.execute(
-            "SELECT * FROM users WHERE email=? AND password=?",
-            (email, password)
-        )
+            email=email,
+            password=password
 
-        user = cursor.fetchone()
-
-        conn.close()
+        ).first()
 
         if user:
 
-            session["user_id"] = user[0]
-            session["username"] = user[1]
+            session["user_id"] = user.id
+            session["username"] = user.username
 
             return redirect("/dashboard")
 
-        else:
-            return "Invalid Email or Password"
+        return "Invalid Email or Password"
 
     return render_template("login.html")
 
@@ -353,21 +347,10 @@ def add_recipe():
 
         user_id = session["user_id"]
 
-        conn = sqlite3.connect("/tmp/database.db")
+    #
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            INSERT INTO recipes
-            (user_id, title, ingredients, instructions)
-
-            VALUES (?, ?, ?, ?)
-            """,
-            (user_id, title, ingredients, instructions)
-        )
-
-        conn.commit()
-        conn.close()
+      
 
         return redirect("/dashboard")
 
@@ -387,21 +370,10 @@ def save_nutrition_recipe():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("/tmp/database.db")
+#
     cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        INSERT INTO recipes
-        (user_id, title, ingredients, instructions)
-
-        VALUES (?, ?, ?, ?)
-        """,
-        (user_id, title, ingredients, instructions)
-    )
-
-    conn.commit()
-    conn.close()
+    
 
     return redirect("/recipes")
 
@@ -413,17 +385,14 @@ def recipes():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("/tmp/database.db")
+#
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT * FROM recipes WHERE user_id=?",
-        (user_id,)
-    )
+    
 
     all_recipes = cursor.fetchall()
 
-    conn.close()
+    
 
     return render_template(
         "recipes.html",
@@ -440,16 +409,13 @@ def delete_recipe(id):
     if "user_id" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect("/tmp/database.db")
+#
     cursor = conn.cursor()
 
-    cursor.execute(
-        "DELETE FROM recipes WHERE id=?",
-        (id,)
-    )
+    
 
-    conn.commit()
-    conn.close()
+    
+    
 
     return redirect("/recipes")
  
@@ -459,16 +425,12 @@ def delete_meal(id):
     if "user_id" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect("/tmp/database.db")
+#
     cursor = conn.cursor()
 
-    cursor.execute(
-        "DELETE FROM meal_plans WHERE id=?",
-        (id,)
-    )
 
-    conn.commit()
-    conn.close()
+
+    
 
     return redirect("/meal_planner")
 # ---------------- AI GENERATOR ---------------- #
@@ -636,26 +598,10 @@ def save_ai_recipe():
 
         instructions = full_recipe
 
-    conn = sqlite3.connect("/tmp/database.db")
+#
     cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        INSERT INTO recipes
-        (user_id, title, ingredients, instructions)
-
-        VALUES (?, ?, ?, ?)
-        """,
-        (
-            session["user_id"],
-            title,
-            ingredients,
-            instructions
-        )
-    )
-
-    conn.commit()
-    conn.close()
+    
 
     return redirect("/recipes")
 @app.route("/generate_recipe_details", methods=["POST"])
