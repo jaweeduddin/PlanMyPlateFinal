@@ -110,37 +110,41 @@ def meal_planner():
 
     user_id = session["user_id"]
 
-    
-    
-
-    # SAVE PLAN
     if request.method == "POST":
 
-    day = request.form["day"]
+        day = request.form["day"]
 
-    recipe_id = request.form.get("recipe_id")
+        recipe_id = request.form.get("recipe_id")
 
-    if not recipe_id:
+        if not recipe_id:
+            return "Please add recipes first"
 
-        return "Please add recipes first"
+        new_plan = MealPlan(
 
-    new_plan = MealPlan(
+            user_id=user_id,
+            day=day,
+            recipe_id=recipe_id
 
-        user_id=user_id,
-        day=day,
-        recipe_id=recipe_id
+        )
 
-    )
+        db.session.add(new_plan)
 
-    db.session.add(new_plan)
+        db.session.commit()
 
-    db.session.commit()
-        
+    recipes = Recipe.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    plans = MealPlan.query.filter_by(
+        user_id=user_id
+    ).all()
 
     return render_template(
+
         "meal_planner.html",
         recipes=recipes,
         plans=plans
+
     )
 
 @app.route("/nutrition_planner", methods=["GET", "POST"])
@@ -360,10 +364,10 @@ def add_recipe():
 
        new_recipe = Recipe(
 
-    user_id=user_id,
-    title=title,
-    ingredients=ingredients,
-    instructions=instructions
+       user_id=user_id,
+       title=title,
+       ingredients=ingredients,
+       instructions=instructions
 
 )
 
@@ -397,32 +401,24 @@ def save_nutrition_recipe():
     
 
     return redirect("/recipes")
-
 @app.route("/recipes")
 def recipes():
-    all_recipes = Recipe.query.filter_by(
-    user_id=user_id
-).all()
-    
+
     if "user_id" not in session:
         return redirect("/login")
 
     user_id = session["user_id"]
 
-#
-    #
-
-    
-
-    
-
-    
+    all_recipes = Recipe.query.filter_by(
+        user_id=user_id
+    ).all()
 
     return render_template(
+
         "recipes.html",
         recipes=all_recipes
-    )
 
+    )
 # ---------------- DELETE RECIPE ---------------- #
 
 
@@ -449,18 +445,17 @@ def delete_recipe(id):
  
 @app.route("/delete_meal/<int:id>")
 def delete_meal(id):
-new_recipe = Recipe(
+
+    if "user_id" not in session:
+        return redirect("/login")
+
     plan = MealPlan.query.get(id)
 
     db.session.delete(plan)
 
     db.session.commit()
 
-
-
-    
-
-    return redirect("/meal_planner"))
+    return redirect("/meal_planner")
 # ---------------- AI GENERATOR ---------------- #
 
 @app.route("/ai_generator", methods=["GET", "POST"])
@@ -607,39 +602,36 @@ def save_ai_recipe():
 
     full_recipe = request.form["instructions"]
 
-    # SPLIT INGREDIENTS
     ingredients = ""
 
     instructions = ""
 
     if "👨‍🍳" in full_recipe:
 
-    parts = full_recipe.split("👨‍🍳")
+        parts = full_recipe.split("👨‍🍳")
 
-    ingredients = parts[0]
+        ingredients = parts[0]
 
-    instructions = "👨‍🍳" + parts[1]
+        instructions = "👨‍🍳" + parts[1]
 
-else:
+    else:
 
-    ingredients = full_recipe
+        ingredients = full_recipe
 
-    instructions = full_recipe
+        instructions = full_recipe
 
-new_recipe = Recipe(
+    new_recipe = Recipe(
 
-    user_id=session["user_id"],
-    title=title,
-    ingredients=ingredients,
-    instructions=instructions
+        user_id=session["user_id"],
+        title=title,
+        ingredients=ingredients,
+        instructions=instructions
 
-)
+    )
 
-db.session.add(new_recipe)
+    db.session.add(new_recipe)
 
-db.session.commit()
-
-    
+    db.session.commit()
 
     return redirect("/recipes")
 @app.route("/generate_recipe_details", methods=["POST"])
@@ -699,5 +691,3 @@ def logout():
 
 # ---------------- RUN APP ---------------- #
 
-if __name__ == "__main__":
-    app.run()
