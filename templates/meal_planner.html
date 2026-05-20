@@ -152,87 +152,52 @@
 
     </div>
 <script>
-
 const mealRecipes = [
-
     {% for recipe in recipes %}
-
     {
-        id: "{{ recipe[0] }}",
-        title: "{{ recipe[2] }}"
+        /* FIX: Access object attributes directly by name instead of array indices */
+        id: "{{ recipe.id }}",
+        title: "{{ recipe.title }}"
     },
-
     {% endfor %}
 ];
 
 function showMealSuggestions() {
-
-    const input =
-        document.getElementById(
-            "meal-search"
-        );
-
-    const box =
-        document.getElementById(
-            "meal-suggestions"
-        );
-
-    const value =
-        input.value.toLowerCase();
+    const input = document.getElementById("meal-search");
+    const box = document.getElementById("meal-suggestions");
+    const value = input.value.toLowerCase();
 
     box.innerHTML = "";
 
     if (value.length === 0) {
-
         box.style.display = "none";
         return;
     }
 
-    const filtered =
-        mealRecipes.filter(recipe =>
-
-            recipe.title.toLowerCase()
-            .includes(value)
-        );
+    const filtered = mealRecipes.filter(recipe =>
+        recipe.title.toLowerCase().includes(value)
+    );
 
     if (filtered.length > 0) {
-
         box.style.display = "block";
-
     } else {
-
         box.style.display = "none";
     }
 
     filtered.forEach(recipe => {
-
-        const div =
-            document.createElement("div");
-
-        div.classList.add(
-            "suggestion-item"
-        );
-
-        div.innerText =
-            recipe.title;
+        const div = document.createElement("div");
+        div.classList.add("suggestion-item");
+        div.innerText = recipe.title;
 
         div.onclick = function() {
-
-            document.getElementById(
-                "meal-search"
-            ).value = recipe.title;
-
-            document.getElementById(
-                "selected-recipe-id"
-            ).value = recipe.id;
-
+            document.getElementById("meal-search").value = recipe.title;
+            document.getElementById("selected-recipe-id").value = recipe.id;
             box.style.display = "none";
         };
 
         box.appendChild(div);
     });
 }
-
 </script>
 <script>
 

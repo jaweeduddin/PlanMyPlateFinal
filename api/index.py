@@ -165,6 +165,8 @@ def delete_recipe(id):
 
 # ---------------- MEAL PLANNER ---------------- #
 
+# ---------------- MEAL PLANNER (DATA JOIN FIX) ---------------- #
+
 @app.route("/meal_planner", methods=["GET", "POST"])
 def meal_planner():
     if "user_id" not in session:
@@ -177,16 +179,30 @@ def meal_planner():
         recipe_id = request.form.get("recipe_id")
 
         if not recipe_id:
-            return "Please add recipes first"
+            return "Please select a valid recipe from the search list suggestions first!"
 
-        new_plan = MealPlan(user_id=user_id, day=day, recipe_id=recipe_id)
+        new_plan = MealPlan(user_id=user_id, day=day, recipe_id=int(recipe_id))
         db.session.add(new_plan)
         db.session.commit()
 
+    # Fetch all recipes so the search input bar can see them
     recipes = Recipe.query.filter_by(user_id=user_id).all()
-    plans = MealPlan.query.filter_by(user_id=user_id).all()
 
-    return render_template("meal_planner.html", recipes=recipes, plans=plans)
+    # Relational Database Join Query: Fetch the MealPlan alongside its linked Recipe details
+    joined_plans = db.session.query(MealPlan, Recipe).join(Recipe, MealPlan.recipe_id == Recipe.id).filter(MealPlan.user_id == user_id).all()
+
+    # Formats the query results into a flat list array so it unpacks safely inside your HTML Jinja loop
+    formatted_plans = []
+    for plan, recipe in joined_plans:
+        formatted_plans.append([
+            plan.day,            # plan[0]
+            recipe.title,        # plan[1]
+            recipe.ingredients,  # plan[2]
+            recipe.instructions, # plan[3]
+            plan.id              # plan[4]
+        ])
+
+    return render_template("meal_planner.html", recipes=recipes, plans=formatted_plans)
 
 
 # ---------------- DELETE MEAL ---------------- #
