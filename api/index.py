@@ -167,6 +167,8 @@ def delete_recipe(id):
 
 # ---------------- MEAL PLANNER (DATA JOIN FIX) ---------------- #
 
+# ---------------- MEAL PLANNER (COMPLETE FIX) ---------------- #
+
 @app.route("/meal_planner", methods=["GET", "POST"])
 def meal_planner():
     if "user_id" not in session:
@@ -178,22 +180,22 @@ def meal_planner():
         day = request.form["day"]
         recipe_id = request.form.get("recipe_id")
 
-        if not recipe_id:
-            return "Please select a valid recipe from the search list suggestions first!"
+        if not recipe_id or recipe_id == "":
+            return "Please select a recipe from the suggestion search results box!"
 
         new_plan = MealPlan(user_id=user_id, day=day, recipe_id=int(recipe_id))
         db.session.add(new_plan)
         db.session.commit()
 
-    # Fetch all recipes so the search input bar can see them
-    recipes = Recipe.query.filter_by(user_id=user_id).all()
+    # 1. Fetch user recipes and format them safely for JavaScript consumption
+    all_user_recipes = Recipe.query.filter_by(user_id=user_id).all()
+    
+    # 2. Relational Database Inner Join: Connect MealPlan IDs to actual Recipe text blocks
+    joined_data = db.session.query(MealPlan, Recipe).join(Recipe, MealPlan.recipe_id == Recipe.id).filter(MealPlan.user_id == user_id).all()
 
-    # Relational Database Join Query: Fetch the MealPlan alongside its linked Recipe details
-    joined_plans = db.session.query(MealPlan, Recipe).join(Recipe, MealPlan.recipe_id == Recipe.id).filter(MealPlan.user_id == user_id).all()
-
-    # Formats the query results into a flat list array so it unpacks safely inside your HTML Jinja loop
+    # Flatten out joined structures into basic arrays for the HTML render card loop template
     formatted_plans = []
-    for plan, recipe in joined_plans:
+    for plan, recipe in joined_data:
         formatted_plans.append([
             plan.day,            # plan[0]
             recipe.title,        # plan[1]
@@ -202,7 +204,7 @@ def meal_planner():
             plan.id              # plan[4]
         ])
 
-    return render_template("meal_planner.html", recipes=recipes, plans=formatted_plans)
+    return render_template("meal_planner.html", recipes=all_user_recipes, plans=formatted_plans)
 
 
 # ---------------- DELETE MEAL ---------------- #
