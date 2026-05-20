@@ -101,47 +101,23 @@
 
         </div>
 
-        {% if recipe %}
-
-        <div class="recipe-card">
-
-            <h2>Generated Recipe 🍲</h2>
-
-            <pre class="recipe-text">
-{{ recipe }}
-            </pre>
-
-            <pre class="recipe-text">
-{{ recipe }}
-</pre>
-
-<form action="/save_ai_recipe"
-      method="POST">
-
-    <input
-    type="text"
-    name="title"
-    placeholder="Enter recipe name..."
-    required>
-
+{% if recipe %}
+<div class="recipe-card">
+    <h2>Generated Recipe 🍲</h2>
     
+    <pre class="recipe-text">{{ recipe }}</pre>
 
-    <input
-        type="hidden"
-        name="instructions"
-        value="{{ recipe }}">
+    <form action="/save_ai_recipe" method="POST">
+        <input type="text" name="title" placeholder="Enter recipe name..." required>
+        
+        <input type="hidden" name="ingredients" value="{{ raw_ingredients }}">
+        
+        <input type="hidden" name="instructions" value="{{ recipe }}">
 
-    <button class="btn">
-
-        Save To Favorites ❤️
-
-    </button>
-
-</form>
-
-        </div>
-
-        {% endif %}
+        <button class="btn">Save To Favorites ❤️</button>
+    </form>
+</div>
+{% endif %}
 
     </div>
 
