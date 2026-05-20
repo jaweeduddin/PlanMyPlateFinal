@@ -125,7 +125,7 @@ def add_recipe():
     return render_template("add_recipe.html")
 
 
-# ---------------- RECIPES ---------------- #
+# ---------------- RECIPES (FIXED) ---------------- #
 
 @app.route("/recipes")
 def recipes():
@@ -135,7 +135,18 @@ def recipes():
     user_id = session["user_id"]
     all_recipes = Recipe.query.filter_by(user_id=user_id).all()
 
-    return render_template("recipes.html", recipes=all_recipes)
+    # Convert database objects into explicit index-mapped lists for your HTML frontend
+    formatted_recipes = []
+    for r in all_recipes:
+        formatted_recipes.append([
+            r.id,           # recipe[0]
+            r.user_id,      # recipe[1]
+            r.title,        # recipe[2]
+            r.ingredients,  # recipe[3]
+            r.instructions  # recipe[4]
+        ])
+
+    return render_template("recipes.html", recipes=formatted_recipes)
 
 
 # ---------------- DELETE RECIPE ---------------- #
