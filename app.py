@@ -80,7 +80,7 @@ with app.app_context():
 
 app.secret_key = "planmyplate_secret"
 
-import os
+
 
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY")
@@ -354,32 +354,32 @@ def add_recipe():
     if "user_id" not in session:
         return redirect("/login")
 
-    if request.method == "POST":
+        if request.method == "POST":
 
-        title = request.form["title"]
-        ingredients = request.form["ingredients"]
-        instructions = request.form["instructions"]
+           title = request.form["title"]
 
-        user_id = session["user_id"]
+           ingredients = request.form["ingredients"]
 
-       new_recipe = Recipe(
+           instructions = request.form["instructions"]
 
-       user_id=user_id,
-       title=title,
-       ingredients=ingredients,
-       instructions=instructions
+           user_id = session["user_id"]
 
-)
+           new_recipe = Recipe(
 
-db.session.add(new_recipe)
+               user_id=user_id,
+               title=title,
+               ingredients=ingredients,
+               instructions=instructions
 
-db.session.commit()
+        )
 
-      
+           db.session.add(new_recipe)
 
-        return redirect("/dashboard")
+           db.session.commit()
+  
+           return redirect("/dashboard")
 
-    return render_template("add_recipe.html")
+           return render_template("add_recipe.html")
 
 # ---------------- RECIPES ---------------- #
 
