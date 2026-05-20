@@ -465,18 +465,53 @@ Keep language simple and clean.
 
 # ---------------- SAVE AI RECIPE (DYNAMIC FIX) ---------------- #
 
+# ---------------- SAVE AI RECIPE (SMART TEXT SPLITTER FIX) ---------------- #
+
 @app.route("/save_ai_recipe", methods=["POST"])
 def save_ai_recipe():
     if "user_id" not in session:
         return redirect("/login")
 
-    title = request.form["title"]
-    
-    # Captures the actual text input values sent from your form fields
-    ingredients = request.form.get("ingredients", "AI Generated Blend")
-    instructions = request.form.get("instructions", "")
+    title = request.form.get("title", "AI Generated Recipe")
+    full_recipe_text = request.form.get("instructions", "")
 
-    # Saves the real API recipe text directly into the database
+    # Default fallbacks if parsing tags are missing
+    ingredients = "See recipe layout text details below."
+    instructions = full_recipe_text
+
+    # Smart text processing: dynamically extract sections based on headers
+    upper_text = full_recipe_text.upper()
+    
+    if "INGREDIENTS:" in upper_text and "INSTRUCTIONS:" in upper_text:
+        # Find exactly where the Ingredients section starts and where Instructions begin
+        try:
+            parts_ingredients = full_recipe_text.split("INGREDIENTS:")
+            # Get everything between 'INGREDIENTS:' and 'INSTRUCTIONS:'
+            ingredients_part = parts_ingredients[1].split("INSTRUCTIONS:")[0].strip()
+            # Get everything after 'INSTRUCTIONS:'
+            instructions_part = parts_ingredients[1].split("INSTRUCTIONS:")[1].strip()
+            
+            ingredients = ingredients_part
+            instructions = instructions_part
+        except Exception:
+            # Fallback if split encounters an anomaly
+            ingredients = request.form.get("ingredients", "AI Generated Blend")
+    
+    elif "INGREDIENTS:" in upper_text:
+        parts = full_recipe_text.split("INGREDIENTS:")
+        ingredients = parts[1].strip()
+    
+    elif "🥕 INGREDIENTS:" in full_recipe_text and "👨‍🍳 STEPS:" in full_recipe_text:
+        try:
+            parts = full_recipe_text.split("🥕 INGREDIENTS:")
+            ingredients_part = parts[1].split("👨‍🍳 STEPS:")[0].strip()
+            instructions_part = parts[1].split("👨‍🍳 STEPS:")[1].strip()
+            ingredients = ingredients_part
+            instructions = instructions_part
+        except Exception:
+            pass
+
+    # Save cleanly separated data parameters into their proper slots
     new_recipe = Recipe(
         user_id=session["user_id"],
         title=title,
