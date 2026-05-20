@@ -328,42 +328,28 @@ def save_nutrition_recipe():
 
 # ---------------- AI GENERATOR ---------------- #
 
+# ---------------- AI GENERATOR PROMPT UPDATE ---------------- #
+
 @app.route("/ai_generator", methods=["GET", "POST"])
 def ai_generator():
     if "user_id" not in session:
         return redirect("/login")
 
     generated_recipe = ""
+    ingredients_payload = ""
 
     if request.method == "POST":
-        ingredients = request.form["ingredients"]
-
-        prompt = f"""
-Create a simple and beautiful recipe using:
-{ingredients}
-
-Rules:
-- Use very easy English
-- Keep response clean and readable
-- Use points and emojis
-- Short cooking steps
-- Make it visually attractive
-
-Format:
-
-🍽️ Recipe Name
-
-🥕 Ingredients:
-• ingredient 1
-• ingredient 2
-
-👨‍🍳 Steps:
-1. Step one
-2. Step two
-
-💡 Tip:
-Short cooking tip
-"""
+        ingredients_payload = request.form["ingredients"]
+        
+        # We rewrite the prompt to demand long, highly comprehensive instructions
+        prompt = (
+            f"Create an incredibly detailed, comprehensive, and large recipe using these primary ingredients: {ingredients_payload}.\n\n"
+            f"Structure your response beautifully with Emojis and markdown headers:\n"
+            f"1. A creative title for the recipe.\n"
+            f"2. A thorough, expanded breakdown of the Ingredients (including prep states like chopping sizes).\n"
+            f"3. High-quality, long, and deeply descriptive Step-by-Step cooking instructions. Explain the culinary techniques, what visual cues to look for (e.g., 'until golden brown and aromatic'), and precise management of heat levels.\n"
+            f"4. Pro-chef tips for presentation, plating, and advanced flavor enhancements."
+        )
 
         try:
             chat_completion = client.chat.completions.create(
@@ -372,9 +358,9 @@ Short cooking tip
             )
             generated_recipe = chat_completion.choices[0].message.content
         except Exception as e:
-            generated_recipe = str(e)
+            generated_recipe = f"API Error context: {str(e)}"
 
-    return render_template("ai_generator.html", recipe=generated_recipe)
+    return render_template("ai_generator.html", recipe=generated_recipe, raw_ingredients=ingredients_payload)
 
 
 # ---------------- RECIPE SEARCH ---------------- #
