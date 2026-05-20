@@ -108,47 +108,32 @@
         <h2>Your Weekly Plans 🍲</h2>
 
         {% for plan in plans %}
+        <div class="recipe-card">
 
-<div class="recipe-card">
+            <h3>
+                📅 {{ plan[0] }}
+            </h3>
 
-    <h3>
-        📅 {{ plan[0] }}
-    </h3>
+            <p>
+                🍽️ {{ plan[1] }}
+            </p>
 
-    <p>
-        🍽️ {{ plan[1] }}
-    </p>
+            <div class="recipe-section">
+                <h3>🥕 Ingredients</h3>
+                <div class="recipe-text">{{ plan[2] }}</div>
+            </div>
 
-    <div class="recipe-section">
+            <div class="recipe-section">
+                <h3>👨‍🍳 Instructions</h3>
+                <div class="recipe-text">{{ plan[3] }}</div>
+            </div>
 
-        <h3>🥕 Ingredients</h3>
+            <a href="/delete_meal/{{ plan[4] }}" class="btn delete-btn">
+                Delete Plan ❌
+            </a>
 
-        <div class="recipe-text">
-            {{ plan[2] }}
         </div>
-
-    </div>
-
-    <div class="recipe-section">
-
-        <h3>👨‍🍳 Instructions</h3>
-
-        <div class="recipe-text">
-            {{ plan[3] }}
-        </div>
-
-    </div>
-
-    <a href="/delete_meal/{{ plan[4] }}"
-       class="btn delete-btn">
-
-        Delete Plan ❌
-
-    </a>
-
-</div>
-
-{% endfor %}
+        {% endfor %}
 
     </div>
 <script>
