@@ -427,22 +427,20 @@ Keep language simple and clean.
 
 # ---------------- SAVE AI RECIPE ---------------- #
 
+# ---------------- SAVE AI RECIPE (DYNAMIC FIX) ---------------- #
+
 @app.route("/save_ai_recipe", methods=["POST"])
 def save_ai_recipe():
     if "user_id" not in session:
         return redirect("/login")
 
     title = request.form["title"]
-    full_recipe = request.form["instructions"]
+    
+    # Captures the actual text input values sent from your form fields
+    ingredients = request.form.get("ingredients", "AI Generated Blend")
+    instructions = request.form.get("instructions", "")
 
-    if "👨‍🍳" in full_recipe:
-        parts = full_recipe.split("👨‍🍳")
-        ingredients = parts[0]
-        instructions = "👨‍🍳" + parts[1]
-    else:
-        ingredients = full_recipe
-        instructions = full_recipe
-
+    # Saves the real API recipe text directly into the database
     new_recipe = Recipe(
         user_id=session["user_id"],
         title=title,
