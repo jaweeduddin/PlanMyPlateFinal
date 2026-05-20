@@ -330,6 +330,8 @@ def save_nutrition_recipe():
 
 # ---------------- AI GENERATOR PROMPT UPDATE ---------------- #
 
+# ── Paste this into index.py, replacing your current /ai_generator route ──
+
 @app.route("/ai_generator", methods=["GET", "POST"])
 def ai_generator():
     if "user_id" not in session:
@@ -340,16 +342,42 @@ def ai_generator():
 
     if request.method == "POST":
         ingredients_payload = request.form["ingredients"]
-        
-        # We rewrite the prompt to demand long, highly comprehensive instructions
-        prompt = (
-            f"Create an incredibly detailed, comprehensive, and large recipe using these primary ingredients: {ingredients_payload}.\n\n"
-            f"Structure your response beautifully with Emojis and markdown headers:\n"
-            f"1. A creative title for the recipe.\n"
-            f"2. A thorough, expanded breakdown of the Ingredients (including prep states like chopping sizes).\n"
-            f"3. High-quality, long, and deeply descriptive Step-by-Step cooking instructions. Explain the culinary techniques, what visual cues to look for (e.g., 'until golden brown and aromatic'), and precise management of heat levels.\n"
-            f"4. Pro-chef tips for presentation, plating, and advanced flavor enhancements."
-        )
+
+        prompt = f"""You are a world-class chef. Create a detailed recipe using these ingredients: {ingredients_payload}
+
+Use EXACTLY this format with these exact section headers:
+
+RECIPE NAME:
+[Creative dish name here]
+
+SERVINGS: [number]
+COOKING TIME: [e.g. 35 minutes]
+CALORIES: [e.g. 420 kcal]
+PROTEIN: [e.g. 32g]
+
+INGREDIENTS:
+• [quantity] ingredient 1
+• [quantity] ingredient 2
+• [quantity] ingredient 3
+(list every ingredient, one per line, with quantities)
+
+INSTRUCTIONS:
+1. [Clear step — describe technique, heat level, visual cues]
+2. [Next step]
+3. [Continue until dish is complete]
+(minimum 6 steps, maximum 10 steps)
+
+CHEF'S TIPS:
+• [Tip 1 — flavor, texture, or substitution advice]
+• [Tip 2]
+• [Tip 3]
+
+Rules:
+- Be precise with quantities and temperatures
+- Write steps clearly — one action per step
+- Do NOT use markdown bold or headers with # symbols
+- Do NOT include extra commentary outside the format above
+"""
 
         try:
             chat_completion = client.chat.completions.create(
@@ -358,10 +386,32 @@ def ai_generator():
             )
             generated_recipe = chat_completion.choices[0].message.content
         except Exception as e:
-            generated_recipe = f"API Error context: {str(e)}"
+            generated_recipe = f"Error: {str(e)}"
 
-    return render_template("ai_generator.html", recipe=generated_recipe, raw_ingredients=ingredients_payload)
+    return render_template(
+        "ai_generator.html",
+        recipe=generated_recipe,
+        raw_ingredients=ingredients_payload
+    )
 
+
+# ── Also add this Jinja2 filter near the top of index.py (after app = Flask(...)) ──
+
+@app.template_filter('extract_title')
+def extract_title(text):
+    """Extract recipe name from structured AI output."""
+    if not text:
+        return "My AI Recipe"
+    for line in text.split('\n'):
+        line = line.strip()
+        if line.lower().startswith('recipe name:'):
+            return line.split(':', 1)[-1].strip()
+    # Fallback: first non-empty line
+    for line in text.split('\n'):
+        line = line.strip().replace('#', '').replace('*', '')
+        if len(line) > 4:
+            return line
+    return "My AI Recipe"
 
 # ---------------- RECIPE SEARCH ---------------- #
 
