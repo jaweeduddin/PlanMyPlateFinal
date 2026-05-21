@@ -1734,4 +1734,50 @@ footer a:hover {
     background: #388e3c;
 }
 
-/* logo link override handled in .logo block above */
+.popup-overlay {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.5);
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.popup-box {
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 20px;
+
+    width: 90%;
+    max-width: 400px;
+
+    text-align: left;
+}
+
+.popup-box h2 {
+
+    margin-bottom: 15px;
+}
+
+.popup-box label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-size: 16px;
+}

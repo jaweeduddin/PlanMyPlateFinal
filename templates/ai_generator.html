@@ -58,7 +58,7 @@
 
             <h1>AI Recipe Generator 🤖</h1>
 
-            <form method="POST">
+            <form method="POST" id="recipe-form">
 
                 <div class="voice-box">
 
@@ -86,9 +86,14 @@
 
                 <br><br>
 
-                <button class="btn">
-                    Generate Recipe
-                </button>
+                <button
+    type="button"
+    class="btn"
+    onclick="predictIngredients()">
+
+    Generate Recipe
+
+</button>
 
             </form>
 
@@ -338,7 +343,126 @@ if ("serviceWorker" in navigator) {
         "/static/service-worker.js"
     );
 }
+async function predictIngredients() {
 
+    const ingredients =
+        document.getElementById(
+            "ingredients"
+        ).value;
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "ingredients",
+        ingredients
+    );
+
+    const response =
+        await fetch(
+            "/predict_ingredients",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+    const data =
+        await response.json();
+
+    const extraIngredients =
+        data.ingredients
+        .split("\n");
+
+    const container =
+        document.getElementById(
+            "checkbox-container"
+        );
+
+    container.innerHTML = "";
+
+    extraIngredients.forEach(item => {
+
+        if (item.trim() === "")
+            return;
+
+        const label =
+            document.createElement(
+                "label"
+            );
+
+        label.innerHTML = `
+            <input
+                type="checkbox"
+                value="${item.trim()}"
+                checked>
+
+            ${item}
+        `;
+
+        container.appendChild(
+            label
+        );
+    });
+
+    document.getElementById(
+        "ingredient-popup"
+    ).style.display = "flex";
+}
+
+function submitRecipeForm() {
+
+    const checkboxes =
+        document.querySelectorAll(
+            '#checkbox-container input:checked'
+        );
+
+    let selected = [];
+
+    checkboxes.forEach(box => {
+
+        selected.push(box.value);
+    });
+
+    const ingredientsBox =
+        document.getElementById(
+            "ingredients"
+        );
+
+    ingredientsBox.value +=
+        ", " + selected.join(", ");
+
+    document.getElementById(
+        "recipe-form"
+    ).submit();
+}
 </script>
+<div id="ingredient-popup" class="popup-overlay">
+
+    <div class="popup-box">
+
+        <h2>Additional Ingredients Needed 🧂</h2>
+
+        <p>
+            Select ingredients you have:
+        </p>
+
+        <div id="checkbox-container">
+
+        </div>
+
+        <br>
+
+        <button
+            class="btn"
+            onclick="submitRecipeForm()">
+
+            Generate Final Recipe 🍲
+
+        </button>
+
+    </div>
+
+</div>
 </body>
 </html>
