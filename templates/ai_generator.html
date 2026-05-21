@@ -545,7 +545,12 @@ let selectedAlternatives = [];
 let currentAlternativeIndex = 0;
 
 async function openPopup() {
+window.scrollTo({
 
+    top: 0,
+
+    behavior: "smooth"
+});
     const ingredients =
         document.getElementById(
             "ingredients"
@@ -689,7 +694,12 @@ function submitRecipeForm() {
 }
 
 function showAlternativePopup() {
+window.scrollTo({
 
+    top: 0,
+
+    behavior: "smooth"
+});
     const ingredient =
         uncheckedIngredients[
             currentAlternativeIndex
@@ -711,8 +721,7 @@ function showAlternativePopup() {
                     type="radio"
                     name="alternative"
                     value="${item}"
-                    ${item === alternatives[0] ? "checked" : ""}
->
+                    ${item === alternatives[0] ? "checked" : ""}>
 
                 ${item}
 
