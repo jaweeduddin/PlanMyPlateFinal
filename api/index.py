@@ -412,7 +412,58 @@ Rules:
         raw_ingredients=ingredients_payload
     )
 
+@app.route("/predict_ingredients", methods=["POST"])
+def predict_ingredients():
 
+    ingredients =
+        request.form["ingredients"]
+
+    prompt = f"""
+You are a cooking assistant.
+
+User already has these main ingredients:
+{ingredients}
+
+Suggest ONLY small supporting ingredients
+needed to make a tasty recipe.
+
+Examples:
+- salt
+- pepper
+- oil
+- garlic
+- ginger
+- lemon juice
+
+IMPORTANT RULES:
+- Return ONLY ingredient names
+- One ingredient per line
+- No recipe
+- No explanation
+- No numbering
+"""
+
+    chat_completion =
+        client.chat.completions.create(
+
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+
+        model="llama3-8b-8192"
+    )
+
+    extra_ingredients = \
+        chat_completion.choices[0] \
+        .message.content
+
+    return {
+        "ingredients":
+        extra_ingredients
+    }
 # ── Also add this Jinja2 filter near the top of index.py (after app = Flask(...)) ──
 
 @app.template_filter('extract_title')
