@@ -436,6 +436,34 @@ function submitRecipeForm() {
     ).submit();
 }
 </script>
+<div id="ingredient-popup" class="popup-overlay">
 
+    <div class="popup-box">
+
+        <h2>
+            Available Kitchen Essentials 🧂
+        </h2>
+
+        <p>
+            Uncheck unavailable ingredients
+        </p>
+
+        <div id="checkbox-container">
+
+        </div>
+
+        <br>
+
+        <button
+            class="btn"
+            onclick="submitRecipeForm()">
+
+            Generate Final Recipe 🍲
+
+        </button>
+
+    </div>
+
+</div>
 </body>
 </html>
