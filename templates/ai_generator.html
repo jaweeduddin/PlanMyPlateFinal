@@ -89,7 +89,7 @@
                 <button
     type="button"
     class="btn"
-    onclick="predictIngredients()">
+    onclick="openPopup()">
 
     Generate Recipe
 
@@ -343,36 +343,38 @@ if ("serviceWorker" in navigator) {
         "/static/service-worker.js"
     );
 }
-async function predictIngredients() {
 
-    const ingredients =
-        document.getElementById(
-            "ingredients"
-        ).value;
+const commonIngredients = [
 
-    const formData =
-        new FormData();
+    "Salt",
+    "Black Pepper",
+    "Oil",
+    "Olive Oil",
+    "Garlic",
+    "Ginger",
+    "Turmeric",
+    "Chili Powder",
 
-    formData.append(
-        "ingredients",
-        ingredients
-    );
+    "Cumin",
+    "Coriander",
+    "Garam Masala",
+    "Paprika",
+    "Oregano",
+    "Vinegar",
+    "Soy Sauce",
+    "Butter",
 
-    const response =
-        await fetch(
-            "/predict_ingredients",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
+    "Cheese",
+    "Cream",
+    "Mint",
+    "Curry Leaves",
+    "Lemon Juice",
+    "Honey",
+    "Sugar",
+    "Tomato Sauce"
+];
 
-    const data =
-        await response.json();
-
-    const extraIngredients =
-        data.ingredients
-        .split("\n");
+function openPopup() {
 
     const container =
         document.getElementById(
@@ -381,28 +383,25 @@ async function predictIngredients() {
 
     container.innerHTML = "";
 
-    extraIngredients.forEach(item => {
-
-        if (item.trim() === "")
-            return;
+    commonIngredients.forEach(item => {
 
         const label =
-            document.createElement(
-                "label"
-            );
+            document.createElement("label");
+
+        label.classList.add(
+            "ingredient-item"
+        );
 
         label.innerHTML = `
             <input
                 type="checkbox"
-                value="${item.trim()}"
+                value="${item}"
                 checked>
 
             ${item}
         `;
 
-        container.appendChild(
-            label
-        );
+        container.appendChild(label);
     });
 
     document.getElementById(
@@ -437,32 +436,6 @@ function submitRecipeForm() {
     ).submit();
 }
 </script>
-<div id="ingredient-popup" class="popup-overlay">
 
-    <div class="popup-box">
-
-        <h2>Additional Ingredients Needed 🧂</h2>
-
-        <p>
-            Select ingredients you have:
-        </p>
-
-        <div id="checkbox-container">
-
-        </div>
-
-        <br>
-
-        <button
-            class="btn"
-            onclick="submitRecipeForm()">
-
-            Generate Final Recipe 🍲
-
-        </button>
-
-    </div>
-
-</div>
 </body>
 </html>
