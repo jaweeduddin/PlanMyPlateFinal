@@ -178,10 +178,16 @@ function startVoice() {
         return;
     }
 
-    const recognition = new webkitSpeechRecognition();
+    const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+const recognition =
+    new SpeechRecognition();
 
     recognition.lang = "en-US";
-
+recognition.continuous = false;
+recognition.interimResults = false;
     recognition.start();
 
     recognition.onresult = function(event) {
