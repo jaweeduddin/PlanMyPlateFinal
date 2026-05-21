@@ -346,32 +346,7 @@ if ("serviceWorker" in navigator) {
 
 
 
-function submitRecipeForm() {
 
-    const checkboxes =
-        document.querySelectorAll(
-            '#checkbox-container input:checked'
-        );
-
-    let selected = [];
-
-    checkboxes.forEach(box => {
-
-        selected.push(box.value);
-    });
-
-    const ingredientsBox =
-        document.getElementById(
-            "ingredients"
-        );
-
-    ingredientsBox.value +=
-        ", " + selected.join(", ");
-
-    document.getElementById(
-        "recipe-form"
-    ).submit();
-}
 async function openPopup() {
 
     const ingredients =
@@ -409,8 +384,9 @@ async function openPopup() {
         await response.json();
 
     const ingredientList =
-        data.ingredients
-        .split("\n");
+    data.ingredients
+    .trim()
+    .split("\n");
 
     const container =
         document.getElementById(

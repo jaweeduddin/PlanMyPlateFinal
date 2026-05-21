@@ -344,58 +344,53 @@ def save_nutrition_recipe():
     return redirect("/recipes")
 
 
-@app.route(
-    "/predict_ingredients",
-    methods=["POST"]
-)
+@app.route("/predict_ingredients", methods=["POST"])
 def predict_ingredients():
 
-    ingredients =
-        request.form["ingredients"]
+    ingredients = request.form["ingredients"]
 
     prompt = f"""
 User has these main ingredients:
 
 {ingredients}
 
-Suggest ONLY 5 to 7 small supporting
-ingredients needed for cooking.
+Suggest ONLY 5 to 7 small supporting ingredients needed for cooking.
 
 Examples:
-- salt
-- oil
-- garlic
-- ginger
-- pepper
+salt
+oil
+garlic
+ginger
+black pepper
 
 IMPORTANT RULES:
 - Return ONLY ingredient names
+- Maximum 7 ingredients
 - One ingredient per line
 - No numbering
+- No bullets
+- No dashes
 - No explanation
 - No recipe
-- Maximum 7 ingredients
 """
 
     try:
 
-        chat_completion =
-            client.chat.completions.create(
-
+        chat_completion = client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
                     "content": prompt
                 }
             ],
-
             model="llama-3.1-8b-instant"
         )
 
-        result =
-            chat_completion \
-            .choices[0] \
+        result = (
+            chat_completion
+            .choices[0]
             .message.content
+        )
 
         return {
             "ingredients": result
@@ -404,7 +399,7 @@ IMPORTANT RULES:
     except Exception as e:
 
         return {
-            "ingredients": ""
+            "ingredients": str(e)
         }
 
 # ── Paste this into index.py, replacing your current /ai_generator route ──
