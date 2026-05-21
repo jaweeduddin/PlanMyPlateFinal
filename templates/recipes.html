@@ -45,16 +45,8 @@
 
     <div class="navbar">
 
-    <div class="logo">
+    <a href="/dashboard" class="logo">
         PlanMyPlate 🍽️
-    </div>
-
-    <a href="/dashboard"
-       class="nav-home-btn">
-
-        <span>🏠</span>
-        <span>Dashboard</span>
-
     </a>
 
 </div>
@@ -72,18 +64,24 @@
             </h2>
 
             <div class="recipe-section">
+
                 <h3>🥕 Ingredients</h3>
-<div class="recipe-text">
+
+                <div class="recipe-text">
 {{ recipe[3] | replace('div class="recipe-section">', '') }}
 </div>
+
             </div>
 
             <div class="recipe-section">
+
                 <h3>👨‍🍳 Instructions</h3>
-                <div class="recipe-text">
+
+               <div class="recipe-text">
 {{ recipe[4] | replace('div class="recipe-section">', '') }}
 </div>
-                            </div>
+
+            </div>
 
             <a href="/delete_recipe/{{ recipe[0] }}"
                class="btn delete-btn">

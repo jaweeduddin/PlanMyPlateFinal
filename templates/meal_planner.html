@@ -41,15 +41,8 @@
 
     <div class="navbar">
 
-    <div class="logo">
+    <a href="/dashboard" class="logo">
         PlanMyPlate 🍽️
-    </div>
-
-    <a href="/dashboard"
-       class="nav-home-btn">
-
-        🏠 Dashboard
-
     </a>
 
 </div>
@@ -108,81 +101,131 @@
         <h2>Your Weekly Plans 🍲</h2>
 
         {% for plan in plans %}
-        <div class="recipe-card">
 
-            <h3>
-                📅 {{ plan[0] }}
-            </h3>
+<div class="recipe-card">
 
-            <p>
-                🍽️ {{ plan[1] }}
-            </p>
+    <h3>
+        📅 {{ plan[0] }}
+    </h3>
 
-            <div class="recipe-section">
-                <h3>🥕 Ingredients</h3>
-                <div class="recipe-text">{{ plan[2] }}</div>
-            </div>
+    <p>
+        🍽️ {{ plan[1] }}
+    </p>
 
-            <div class="recipe-section">
-                <h3>👨‍🍳 Instructions</h3>
-                <div class="recipe-text">{{ plan[3] }}</div>
-            </div>
+    <div class="recipe-section">
 
-            <a href="/delete_meal/{{ plan[4] }}" class="btn delete-btn">
-                Delete Plan ❌
-            </a>
+        <h3>🥕 Ingredients</h3>
 
+        <div class="recipe-text">
+            {{ plan[2] }}
         </div>
-        {% endfor %}
+
+    </div>
+
+    <div class="recipe-section">
+
+        <h3>👨‍🍳 Instructions</h3>
+
+        <div class="recipe-text">
+            {{ plan[3] }}
+        </div>
+
+    </div>
+
+    <a href="/delete_meal/{{ plan[4] }}"
+       class="btn delete-btn">
+
+        Delete Plan ❌
+
+    </a>
+
+</div>
+
+{% endfor %}
 
     </div>
 <script>
+
 const mealRecipes = [
+
     {% for recipe in recipes %}
+
     {
-        /* FIX: Access object attributes directly by name instead of array indices */
-        id: "{{ recipe.id }}",
-        title: "{{ recipe.title }}"
+        id: "{{ recipe[0] }}",
+        title: "{{ recipe[2] }}"
     },
+
     {% endfor %}
 ];
 
 function showMealSuggestions() {
-    const input = document.getElementById("meal-search");
-    const box = document.getElementById("meal-suggestions");
-    const value = input.value.toLowerCase();
+
+    const input =
+        document.getElementById(
+            "meal-search"
+        );
+
+    const box =
+        document.getElementById(
+            "meal-suggestions"
+        );
+
+    const value =
+        input.value.toLowerCase();
 
     box.innerHTML = "";
 
     if (value.length === 0) {
+
         box.style.display = "none";
         return;
     }
 
-    const filtered = mealRecipes.filter(recipe =>
-        recipe.title.toLowerCase().includes(value)
-    );
+    const filtered =
+        mealRecipes.filter(recipe =>
+
+            recipe.title.toLowerCase()
+            .includes(value)
+        );
 
     if (filtered.length > 0) {
+
         box.style.display = "block";
+
     } else {
+
         box.style.display = "none";
     }
 
     filtered.forEach(recipe => {
-        const div = document.createElement("div");
-        div.classList.add("suggestion-item");
-        div.innerText = recipe.title;
+
+        const div =
+            document.createElement("div");
+
+        div.classList.add(
+            "suggestion-item"
+        );
+
+        div.innerText =
+            recipe.title;
 
         div.onclick = function() {
-            document.getElementById("meal-search").value = recipe.title;
-            document.getElementById("selected-recipe-id").value = recipe.id;
+
+            document.getElementById(
+                "meal-search"
+            ).value = recipe.title;
+
+            document.getElementById(
+                "selected-recipe-id"
+            ).value = recipe.id;
+
             box.style.display = "none";
         };
 
         box.appendChild(div);
     });
 }
+
 </script>
 <script>
 
