@@ -711,7 +711,8 @@ function showAlternativePopup() {
                     type="radio"
                     name="alternative"
                     value="${item}"
-                    checked>
+                    ${item === alternatives[0] ? "checked" : ""}
+>
 
                 ${item}
 
