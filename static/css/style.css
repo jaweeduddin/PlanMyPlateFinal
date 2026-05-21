@@ -149,12 +149,7 @@ body {
     letter-spacing: -0.3px;
     text-decoration: none;
     cursor: pointer;
-
-    /* gradient text */
-    background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-soft) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--green-deep);
 
     /* pill container */
     display: inline-flex;
@@ -164,10 +159,9 @@ body {
     border-radius: var(--r-pill);
 
     border: 1.5px solid var(--border-mid);
-    background-color: var(--glass-bg);
-    background-image: linear-gradient(135deg, var(--green-deep) 0%, var(--green-soft) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
+    background: linear-gradient(135deg,
+        rgba(184,228,199,0.55) 0%,
+        rgba(255,255,255,0.30) 100%);
 
     box-shadow:
         0 2px 10px rgba(26,71,49,0.08),
@@ -184,17 +178,17 @@ body {
         border-color var(--t-fast) var(--ease-smooth);
 }
 
-/* glass pill background — separate from text so gradient-text still works */
-.logo::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--r-pill);
-    background: linear-gradient(135deg,
-        rgba(184,228,199,0.55) 0%,
-        rgba(255,255,255,0.30) 100%);
-    z-index: -1;
-    transition: background var(--t-mid) var(--ease-smooth);
+/* logo text — bold, deep green, crystal clear */
+.logo-text {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--green-deep);
+    -webkit-text-fill-color: var(--green-deep);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6);
 }
 
 /* shimmer sweep on hover */
