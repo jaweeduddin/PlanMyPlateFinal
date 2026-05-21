@@ -344,37 +344,73 @@ if ("serviceWorker" in navigator) {
     );
 }
 
-const commonIngredients = [
 
-    "Salt",
-    "Black Pepper",
-    "Oil",
-    "Olive Oil",
-    "Garlic",
-    "Ginger",
-    "Turmeric",
-    "Chili Powder",
 
-    "Cumin",
-    "Coriander",
-    "Garam Masala",
-    "Paprika",
-    "Oregano",
-    "Vinegar",
-    "Soy Sauce",
-    "Butter",
+function submitRecipeForm() {
 
-    "Cheese",
-    "Cream",
-    "Mint",
-    "Curry Leaves",
-    "Lemon Juice",
-    "Honey",
-    "Sugar",
-    "Tomato Sauce"
-];
+    const checkboxes =
+        document.querySelectorAll(
+            '#checkbox-container input:checked'
+        );
 
-function openPopup() {
+    let selected = [];
+
+    checkboxes.forEach(box => {
+
+        selected.push(box.value);
+    });
+
+    const ingredientsBox =
+        document.getElementById(
+            "ingredients"
+        );
+
+    ingredientsBox.value +=
+        ", " + selected.join(", ");
+
+    document.getElementById(
+        "recipe-form"
+    ).submit();
+}
+async function openPopup() {
+
+    const ingredients =
+        document.getElementById(
+            "ingredients"
+        ).value;
+
+    if (ingredients.trim() === "") {
+
+        alert(
+            "Please enter ingredients first."
+        );
+
+        return;
+    }
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "ingredients",
+        ingredients
+    );
+
+    const response =
+        await fetch(
+            "/predict_ingredients",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+    const data =
+        await response.json();
+
+    const ingredientList =
+        data.ingredients
+        .split("\n");
 
     const container =
         document.getElementById(
@@ -383,10 +419,17 @@ function openPopup() {
 
     container.innerHTML = "";
 
-    commonIngredients.forEach(item => {
+    ingredientList.forEach(item => {
+
+        item = item.trim();
+
+        if (item === "")
+            return;
 
         const label =
-            document.createElement("label");
+            document.createElement(
+                "label"
+            );
 
         label.classList.add(
             "ingredient-item"
@@ -401,7 +444,9 @@ function openPopup() {
             ${item}
         `;
 
-        container.appendChild(label);
+        container.appendChild(
+            label
+        );
     });
 
     document.getElementById(
