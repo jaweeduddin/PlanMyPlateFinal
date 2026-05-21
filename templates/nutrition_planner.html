@@ -195,7 +195,7 @@ recognition.interimResults = false;
         const transcript =
             event.results[0][0].transcript;
 
-        ddocument.getElementById(
+        document.getElementById(
     "nutrition-ingredients"
 ).value = transcript;
     };
