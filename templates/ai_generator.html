@@ -344,8 +344,205 @@ if ("serviceWorker" in navigator) {
     );
 }
 
+const ingredientAlternatives = {
 
+    "olive oil": [
+        "sunflower oil",
+        "rice bran oil",
+        "coconut oil",
+        "ghee",
+        "butter"
+    ],
 
+    "butter": [
+        "ghee",
+        "olive oil",
+        "margarine",
+        "coconut oil",
+        "cream"
+    ],
+
+    "cream": [
+        "milk",
+        "curd",
+        "coconut cream",
+        "butter",
+        "cheese"
+    ],
+
+    "cheese": [
+        "paneer",
+        "mozzarella",
+        "cream",
+        "curd",
+        "butter"
+    ],
+
+    "sugar": [
+        "jaggery",
+        "honey",
+        "stevia",
+        "monk fruit",
+        "brown sugar"
+    ],
+
+    "honey": [
+        "jaggery",
+        "sugar",
+        "maple syrup",
+        "stevia",
+        "brown sugar"
+    ],
+
+    "milk": [
+        "soy milk",
+        "almond milk",
+        "oat milk",
+        "coconut milk",
+        "curd"
+    ],
+
+    "curd": [
+        "yogurt",
+        "cream",
+        "milk",
+        "buttermilk",
+        "coconut yogurt"
+    ],
+
+    "soy sauce": [
+        "vinegar",
+        "tamari",
+        "chili sauce",
+        "salt",
+        "tomato sauce"
+    ],
+
+    "vinegar": [
+        "lemon juice",
+        "apple cider vinegar",
+        "lime juice",
+        "curd",
+        "soy sauce"
+    ],
+
+    "tomato sauce": [
+        "ketchup",
+        "tomato puree",
+        "chili sauce",
+        "soy sauce",
+        "pizza sauce"
+    ],
+
+    "lemon juice": [
+        "vinegar",
+        "lime juice",
+        "amchur powder",
+        "curd",
+        "orange juice"
+    ],
+
+    "onion": [
+        "shallots",
+        "spring onion",
+        "onion powder",
+        "leeks",
+        "cabbage"
+    ],
+
+    "garlic": [
+        "garlic powder",
+        "ginger",
+        "shallots",
+        "onion powder",
+        "asafoetida"
+    ],
+
+    "ginger": [
+        "ginger powder",
+        "garlic",
+        "pepper",
+        "galangal",
+        "cinnamon"
+    ],
+
+    "salt": [
+        "rock salt",
+        "sea salt",
+        "soy sauce",
+        "black salt",
+        "celery salt"
+    ],
+
+    "black pepper": [
+        "white pepper",
+        "chili flakes",
+        "paprika",
+        "cayenne pepper",
+        "green pepper"
+    ],
+
+    "chili powder": [
+        "paprika",
+        "red chili flakes",
+        "cayenne pepper",
+        "hot sauce",
+        "black pepper"
+    ],
+
+    "turmeric": [
+        "saffron",
+        "curry powder",
+        "ginger powder",
+        "mustard powder",
+        "paprika"
+    ],
+
+    "cumin": [
+        "caraway seeds",
+        "coriander powder",
+        "garam masala",
+        "fennel seeds",
+        "curry powder"
+    ],
+
+    "coriander": [
+        "parsley",
+        "cumin",
+        "caraway seeds",
+        "oregano",
+        "thyme"
+    ],
+
+    "paprika": [
+        "chili powder",
+        "cayenne pepper",
+        "red chili flakes",
+        "black pepper",
+        "smoked paprika"
+    ],
+
+    "oregano": [
+        "thyme",
+        "basil",
+        "parsley",
+        "italian seasoning",
+        "rosemary"
+    ],
+
+    "thyme": [
+        "oregano",
+        "basil",
+        "rosemary",
+        "parsley",
+        "sage"
+    ]
+};
+let uncheckedIngredients = [];
+
+let selectedAlternatives = [];
+
+let currentAlternativeIndex = 0;
 
 async function openPopup() {
 
@@ -432,16 +629,41 @@ async function openPopup() {
 
 function submitRecipeForm() {
 
-    const checkboxes =
+    uncheckedIngredients = [];
+
+    selectedAlternatives = [];
+
+    currentAlternativeIndex = 0;
+
+    const allCheckboxes =
         document.querySelectorAll(
-            '#checkbox-container input:checked'
+            '#checkbox-container input'
         );
 
     let selected = [];
 
-    checkboxes.forEach(box => {
+    allCheckboxes.forEach(box => {
 
-        selected.push(box.value);
+        if (box.checked) {
+
+            selected.push(box.value);
+
+        } else {
+
+            const ingredient =
+                box.value.toLowerCase();
+
+            if (
+                ingredientAlternatives[
+                    ingredient
+                ]
+            ) {
+
+                uncheckedIngredients.push(
+                    ingredient
+                );
+            }
+        }
     });
 
     const ingredientsBox =
@@ -452,9 +674,144 @@ function submitRecipeForm() {
     ingredientsBox.value +=
         ", " + selected.join(", ");
 
+    if (
+        uncheckedIngredients.length > 0
+    ) {
+
+        showAlternativePopup();
+
+    } else {
+
+        document.getElementById(
+            "recipe-form"
+        ).submit();
+    }
+}
+
+function showAlternativePopup() {
+
+    const ingredient =
+        uncheckedIngredients[
+            currentAlternativeIndex
+        ];
+
+    const alternatives =
+        ingredientAlternatives[
+            ingredient
+        ];
+
+    let optionsHTML = "";
+
+    alternatives.forEach(item => {
+
+        optionsHTML += `
+            <label class="ingredient-item">
+
+                <input
+                    type="radio"
+                    name="alternative"
+                    value="${item}"
+                    checked>
+
+                ${item}
+
+            </label>
+        `;
+    });
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+
+        `
+        <div
+            id="alternative-popup"
+            class="popup-overlay"
+            style="display:flex;">
+
+            <div class="popup-box">
+
+                <h2>
+                    Alternative for
+                    ${ingredient} 🔄
+                </h2>
+
+                <p>
+                    Select available substitute
+                </p>
+
+                <div
+                    id="alternative-options"
+                    style="
+                        display:grid;
+                        grid-template-columns:
+                        repeat(2,1fr);
+                        gap:15px;
+                        margin-top:20px;
+                    ">
+
+                    ${optionsHTML}
+
+                </div>
+
+                <br>
+
+                <button
+                    class="btn"
+                    onclick="saveAlternative()">
+
+                    Continue ➜
+
+                </button>
+
+            </div>
+
+        </div>
+        `
+    );
+}
+
+function saveAlternative() {
+
+    const selected =
+        document.querySelector(
+            'input[name="alternative"]:checked'
+        );
+
+    if (selected) {
+
+        selectedAlternatives.push(
+            selected.value
+        );
+    }
+
     document.getElementById(
-        "recipe-form"
-    ).submit();
+        "alternative-popup"
+    ).remove();
+
+    currentAlternativeIndex++;
+
+    if (
+        currentAlternativeIndex <
+        uncheckedIngredients.length
+    ) {
+
+        showAlternativePopup();
+
+    } else {
+
+        const ingredientsBox =
+            document.getElementById(
+                "ingredients"
+            );
+
+        ingredientsBox.value +=
+            ", " +
+            selectedAlternatives.join(", ");
+
+        document.getElementById(
+            "recipe-form"
+        ).submit();
+    }
 }
 </script>
 <div id="ingredient-popup" class="popup-overlay">
