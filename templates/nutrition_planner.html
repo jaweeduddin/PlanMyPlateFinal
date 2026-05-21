@@ -189,8 +189,9 @@ function startVoice() {
         const transcript =
             event.results[0][0].transcript;
 
-        document.getElementById("ingredients").value =
-            transcript;
+        ddocument.getElementById(
+    "nutrition-ingredients"
+).value = transcript;
     };
 
     recognition.onerror = function(event) {
