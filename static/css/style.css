@@ -1643,3 +1643,5 @@ footer a:hover {
 
     background: #388e3c;
 }
+
+.logo { text-decoration: none; color: inherit; cursor: pointer; }
