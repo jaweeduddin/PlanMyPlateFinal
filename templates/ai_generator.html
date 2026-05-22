@@ -667,6 +667,24 @@ function submitRecipeForm() {
                 uncheckedIngredients.push(
                     ingredient
                 );
+                fetch(
+    "/save_missing_ingredient",
+    {
+
+        method: "POST",
+
+        headers: {
+
+            "Content-Type":
+                "application/json"
+        },
+
+        body: JSON.stringify({
+
+            ingredient: ingredient
+        })
+    }
+);
             }
         }
     });

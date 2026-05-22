@@ -29,16 +29,153 @@ class Recipe(db.Model):
 
 
 class MealPlan(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
-    day = db.Column(db.String(50))
-    recipe_id = db.Column(db.Integer)
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    user_id = db.Column(
+        db.Integer
+    )
+
+    day = db.Column(
+        db.String(50)
+    )
+
+    recipe_id = db.Column(
+        db.Integer
+    )
+
+
+class SmartCart(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    ingredient = db.Column(
+        db.String(100)
+    )
+    
 
 
 with app.app_context():
     db.create_all()
 
+emoji_map = {
 
+    # Vegetables
+    "potato": "🥔",
+    "tomato": "🍅",
+    "onion": "🧅",
+    "carrot": "🥕",
+    "broccoli": "🥦",
+    "cabbage": "🥬",
+    "corn": "🌽",
+    "cucumber": "🥒",
+    "eggplant": "🍆",
+    "mushroom": "🍄",
+    "garlic": "🧄",
+    "ginger": "🫚",
+    "chili": "🌶️",
+    "peas": "🟢",
+    "spinach": "🥬",
+    "pumpkin": "🎃",
+    "sweet potato": "🍠",
+
+    # Fruits
+    "apple": "🍎",
+    "banana": "🍌",
+    "orange": "🍊",
+    "grapes": "🍇",
+    "watermelon": "🍉",
+    "melon": "🍈",
+    "pineapple": "🍍",
+    "strawberry": "🍓",
+    "blueberry": "🫐",
+    "pear": "🍐",
+    "kiwi": "🥝",
+    "lemon": "🍋",
+    "mango": "🥭",
+    "coconut": "🥥",
+
+    # Meat & Protein
+    "chicken": "🍗",
+    "meat": "🥩",
+    "beef": "🥩",
+    "fish": "🐟",
+    "prawns": "🦐",
+    "egg": "🥚",
+    "sausage": "🌭",
+
+    # Dairy
+    "milk": "🥛",
+    "cheese": "🧀",
+    "butter": "🧈",
+    "curd": "🥣",
+    "cream": "🍶",
+    "paneer": "🧀",
+    "yogurt": "🥣",
+    "ghee": "🫙",
+
+    # Grains
+    "rice": "🍚",
+    "bread": "🍞",
+    "pasta": "🍝",
+    "noodles": "🍜",
+    "flour": "🌾",
+    "oats": "🥣",
+    "wheat": "🌾",
+
+    # Pulses
+    "dal": "🥣",
+    "lentils": "🫘",
+    "chickpeas": "🫘",
+    "rajma": "🫘",
+    "black beans": "🫘",
+
+    # Spices
+    "salt": "🧂",
+    "sugar": "🍬",
+    "black pepper": "🌶️",
+    "turmeric": "🟡",
+    "paprika": "🌶️",
+    "oregano": "🌿",
+    "coriander": "🌿",
+    "cumin": "🌰",
+    "garam masala": "🧂",
+    "cinnamon": "🪵",
+    "clove": "🌰",
+    "cardamom": "🌿",
+
+    # Oils & Sauces
+    "oil": "🫒",
+    "olive oil": "🫒",
+    "soy sauce": "🥫",
+    "vinegar": "🍾",
+    "tomato sauce": "🥫",
+    "ketchup": "🥫",
+    "mayonnaise": "🥫",
+    "mustard sauce": "🥫",
+
+    # Nuts
+    "almonds": "🌰",
+    "cashews": "🥜",
+    "walnuts": "🌰",
+    "raisins": "🍇",
+    "dates": "🌴",
+    "pistachios": "🥜",
+
+    # Misc
+    "coffee": "☕",
+    "tea": "🍵",
+    "honey": "🍯",
+    "chocolate": "🍫",
+    "jam": "🫙",
+    "peanut butter": "🥜"
+}
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 
@@ -628,6 +765,97 @@ INSTRUCTIONS:
     except Exception as e:
         return str(e)
 
+# ---------------- SAVE MISSING INGREDIENT ---------------- #
+
+@app.route(
+    "/save_missing_ingredient",
+    methods=["POST"]
+)
+def save_missing_ingredient():
+
+    data = request.get_json()
+
+    ingredient = data.get(
+        "ingredient"
+    )
+
+    existing =
+        SmartCart.query.filter_by(
+            ingredient=ingredient
+        ).first()
+
+    if not existing:
+
+        new_item = SmartCart(
+            ingredient=ingredient
+        )
+
+        db.session.add(
+            new_item
+        )
+
+        db.session.commit()
+
+    return {
+        "message":
+        "Ingredient saved"
+    }
+
+# ---------------- SMART CART ---------------- #
+
+@app.route("/smart_cart")
+def smart_cart():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    items =
+        SmartCart.query.all()
+
+    formatted_items = []
+
+    for item in items:
+
+        emoji =
+            emoji_map.get(
+                item.ingredient.lower(),
+                "🛒"
+            )
+
+        formatted_items.append({
+
+            "id": item.id,
+
+            "ingredient":
+                item.ingredient,
+
+            "emoji": emoji
+        })
+
+    return render_template(
+
+        "smart_cart.html",
+
+        items=formatted_items
+    )
+
+    # ---------------- REMOVE SMART CART ITEM ---------------- #
+
+@app.route(
+    "/remove_smart_cart/<int:id>"
+)
+def remove_smart_cart(id):
+
+    item =
+        SmartCart.query.get(id)
+
+    if item:
+
+        db.session.delete(item)
+
+        db.session.commit()
+
+    return redirect("/smart_cart")
 
 # ---------------- LOGOUT ---------------- #
 
