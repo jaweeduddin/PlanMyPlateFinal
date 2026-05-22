@@ -808,15 +808,13 @@ def smart_cart():
     if "user_id" not in session:
         return redirect("/login")
 
-    items =
-        SmartCart.query.all()
+    items = SmartCart.query.all()
 
     formatted_items = []
 
     for item in items:
 
-        emoji =
-            emoji_map.get(
+        emoji = emoji_map.get(
                 item.ingredient.lower(),
                 "🛒"
             )
@@ -845,8 +843,7 @@ def smart_cart():
 )
 def remove_smart_cart(id):
 
-    item =
-        SmartCart.query.get(id)
+    item = SmartCart.query.get(id)
 
     if item:
 
