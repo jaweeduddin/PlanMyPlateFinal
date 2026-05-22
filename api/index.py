@@ -779,10 +779,9 @@ def save_missing_ingredient():
         "ingredient"
     )
 
-    existing =
-        SmartCart.query.filter_by(
-            ingredient=ingredient
-        ).first()
+    existing = SmartCart.query.filter_by(
+        ingredient=ingredient
+    ).first()
 
     if not existing:
 
