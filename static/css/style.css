@@ -1833,3 +1833,50 @@ footer a:hover {
     width: 18px;
     height: 18px;
 }
+
+/* LOGOUT BUTTON */
+
+.logout-btn {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+    color: white;
+
+    padding: 12px 24px;
+
+    border-radius: 50px;
+
+    text-decoration: none;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 8px 24px rgba(239,68,68,0.25);
+
+    transition:
+        all 0.3s ease;
+}
+
+.logout-btn:hover {
+
+    transform:
+        translateY(-2px)
+        scale(1.03);
+
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #b91c1c
+        );
+
+    box-shadow:
+        0 12px 30px rgba(239,68,68,0.35);
+}
