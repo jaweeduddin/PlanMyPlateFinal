@@ -76,27 +76,33 @@
 
 </div>
 
-            <h2
-                style="
-                font-size:32px;
-                ">
+            <div class="smart-cart-card">
 
-                {{ item.emoji }}
-                {{ item.ingredient }}
+    <div class="smart-cart-item">
 
-            </h2>
+        <div class="smart-cart-emoji">
 
-            <br>
-
-            <a
-                href="/remove_smart_cart/{{ item.id }}"
-                class="btn">
-
-                I Have This ✅
-
-            </a>
+            {{ item.emoji }}
 
         </div>
+
+        <div class="smart-cart-name">
+
+            {{ item.ingredient }}
+
+        </div>
+
+    </div>
+
+    <a
+        href="/remove_smart_cart/{{ item.id }}"
+        class="smart-cart-btn">
+
+        I Have This ✅
+
+    </a>
+
+</div>
 
         {% endfor %}
 
