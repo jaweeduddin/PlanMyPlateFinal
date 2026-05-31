@@ -11,6 +11,14 @@ app.secret_key = "planmyplate_secret"
 db = SQLAlchemy(app)
 
 
+def clean_multiline_text(text):
+    """Trim form/AI text without leaving indentation on saved recipe lines."""
+    if not text:
+        return ""
+    lines = [line.strip() for line in text.strip().splitlines()]
+    return "\n".join(line for line in lines if line)
+
+
 # ---------------- MODELS ---------------- #
 
 class User(db.Model):
@@ -242,9 +250,9 @@ def add_recipe():
         return redirect("/login")
 
     if request.method == "POST":
-        title = request.form["title"]
-        ingredients = request.form["ingredients"]
-        instructions = request.form["instructions"]
+        title = request.form["title"].strip()
+        ingredients = clean_multiline_text(request.form["ingredients"])
+        instructions = clean_multiline_text(request.form["instructions"])
         user_id = session["user_id"]
 
         new_recipe = Recipe(
@@ -279,8 +287,8 @@ def recipes():
             r.id,           # recipe[0]
             r.user_id,      # recipe[1]
             r.title,        # recipe[2]
-            r.ingredients,  # recipe[3]
-            r.instructions  # recipe[4]
+            clean_multiline_text(r.ingredients),  # recipe[3]
+            clean_multiline_text(r.instructions)  # recipe[4]
         ])
 
     return render_template("recipes.html", recipes=formatted_recipes)
@@ -464,13 +472,13 @@ def save_nutrition_recipe():
         return redirect("/login")
 
     title = request.form["title"]
-    ingredients = request.form["ingredients"]
-    instructions = request.form["instructions"]
+    ingredients = clean_multiline_text(request.form["ingredients"])
+    instructions = clean_multiline_text(request.form["instructions"])
     user_id = session["user_id"]
 
     new_recipe = Recipe(
         user_id=user_id,
-        title=title,
+        title=title.strip(),
         ingredients=ingredients,
         instructions=instructions
     )
@@ -723,9 +731,9 @@ def save_ai_recipe():
     # Save cleanly separated data parameters into their proper slots
     new_recipe = Recipe(
         user_id=session["user_id"],
-        title=title,
-        ingredients=ingredients,
-        instructions=instructions
+        title=title.strip(),
+        ingredients=clean_multiline_text(ingredients),
+        instructions=clean_multiline_text(instructions)
     )
 
     db.session.add(new_recipe)
