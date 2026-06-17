@@ -477,7 +477,7 @@ label {
     text-transform: uppercase;
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
     width: 100%;
@@ -509,14 +509,14 @@ textarea::placeholder {
     font-weight: 300;
 }
 
-input:hover,
+input:not([type="checkbox"]):not([type="radio"]):hover,
 textarea:hover,
 select:hover {
     border-color: var(--green-pale);
     background: var(--cream-pure);
 }
 
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
     border-color: var(--green-soft);
@@ -1821,6 +1821,8 @@ footer a:hover {
 
     font-size: 15px;
 
+    cursor: pointer;
+
     /* Only transition background-color — avoids layout-triggering "all" transition
        which caused the cards to jump/dance on hover */
     transition: background-color 0.2s ease;
@@ -1831,10 +1833,26 @@ footer a:hover {
     background: #e8f5e9;
 }
 
-.ingredient-item input {
+.ingredient-item input[type="checkbox"],
+.ingredient-item input[type="radio"] {
 
     width: 18px;
     height: 18px;
+
+    flex: 0 0 18px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+
+    accent-color: var(--green-mid);
+    cursor: pointer;
+    transition: none;
 }
 
 /* LOGOUT BUTTON */
