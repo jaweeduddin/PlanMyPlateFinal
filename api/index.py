@@ -565,13 +565,12 @@ def ai_generator():
             "2"
         )
         print("SERVINGS =", servings)
-        prompt = f"""
-    You are a world-class chef.
+        prompt = f"""You are a world-class chef.
 
-    Create a detailed recipe for
-    {servings} servings using these ingredients:
+Create a detailed recipe for
+{servings} servings using these ingredients:
 
-    {ingredients_payload}
+{ingredients_payload}
 
     Use EXACTLY this format:
 
@@ -595,6 +594,9 @@ def ai_generator():
 • [Tip 3]
 
 Rules:
+Rules:
+- The recipe MUST be for exactly {servings} servings
+- Scale all ingredient quantities accordingly
 - Be precise with quantities and temperatures
 - Write steps clearly — one action per step
 - Do NOT use markdown bold or headers with # symbols
