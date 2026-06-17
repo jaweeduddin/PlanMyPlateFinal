@@ -60,10 +60,10 @@
 
             <form method="POST" id="recipe-form">
             <input
-    type="hidden"
-    id="servings"
-    name="servings"
-    value="2">
+                type="hidden"
+                id="servings"
+                name="servings"
+                value="2">
                 <div class="voice-box">
 
     <div style="width: 100%; position: relative;">
@@ -576,14 +576,15 @@ function continueToIngredients() {
         );
 
     let servings = selected.value;
-
     if (servings === "custom") {
 
         servings =
             document.getElementById(
                 "custom-servings"
             ).value;
-
+         document.getElementById(
+        "servings"
+    ).value = servings;
         if (!servings) {
 
             alert(
@@ -899,6 +900,25 @@ function saveAlternative() {
         ).submit();
     }
 }
+document.addEventListener(
+    "change",
+    function(e) {
+
+        if (
+            e.target.name ===
+            "serving_option"
+        ) {
+
+            document.getElementById(
+                "custom-servings"
+            ).style.display =
+
+            e.target.value === "custom"
+            ? "block"
+            : "none";
+        }
+    }
+);
 </script>
 <div id="servings-popup" class="popup-overlay">
 
