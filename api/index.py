@@ -608,11 +608,11 @@ Rules:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.1-8b-instant"
             )
-            generated_recipe = f"""
-INGREDIENTS = {ingredients_payload}
-
-SERVINGS = {request.form.get('servings')}
-"""
+            generated_recipe = (
+    chat_completion
+    .choices[0]
+    .message.content
+)
         except Exception as e:
             generated_recipe = f"Error: {str(e)}"
 
