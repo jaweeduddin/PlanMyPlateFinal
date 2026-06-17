@@ -2029,3 +2029,42 @@ color: #ff7a00;
 
     border-radius: 15px;
 }
+/* Fix popup checkbox dancing */
+
+.ingredient-item,
+.ingredient-item:hover,
+.ingredient-item:focus,
+.ingredient-item:active {
+
+    transform: none !important;
+
+    animation: none !important;
+
+    transition: background-color 0.15s ease !important;
+
+    will-change: auto !important;
+}
+
+.ingredient-item input {
+
+    transform: none !important;
+
+    animation: none !important;
+}
+
+/* Popup cards stay fixed */
+
+#checkbox-container .ingredient-item,
+#servings-container .ingredient-item,
+#alternative-options .ingredient-item {
+
+    position: relative;
+
+    min-height: 60px;
+
+    cursor: pointer;
+
+    backface-visibility: hidden;
+
+    transform: translateZ(0);
+}
