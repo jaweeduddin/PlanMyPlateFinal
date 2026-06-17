@@ -601,7 +601,10 @@ function continueToIngredients() {
     document.getElementById(
         "servings-popup"
     ).style.display = "none";
-
+    alert(
+    "Selected servings = " +
+    document.getElementById("servings").value
+);
     openIngredientPopup();
 }
 async function openIngredientPopup() {
