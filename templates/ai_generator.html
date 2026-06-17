@@ -59,7 +59,11 @@
             <h1>AI Recipe Generator 🤖</h1>
 
             <form method="POST" id="recipe-form">
-
+            <input
+    type="hidden"
+    id="servings"
+    name="servings"
+    value="2">
                 <div class="voice-box">
 
     <div style="width: 100%; position: relative;">
@@ -564,7 +568,38 @@ function openPopup() {
         "servings-popup"
     ).style.display = "flex";
 }
+function continueToIngredients() {
 
+    const selected =
+        document.querySelector(
+            'input[name="serving_option"]:checked'
+        );
+
+    let servings = selected.value;
+
+    if (servings === "custom") {
+
+        servings =
+            document.getElementById(
+                "custom-servings"
+            ).value;
+
+        if (!servings) {
+
+            alert(
+                "Please enter servings"
+            );
+
+            return;
+        }
+    }
+
+    document.getElementById(
+        "servings-popup"
+    ).style.display = "none";
+
+    openIngredientPopup();
+}
 async function openIngredientPopup() {
 
     window.scrollTo({
