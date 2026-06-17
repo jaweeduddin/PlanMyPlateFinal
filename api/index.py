@@ -560,6 +560,11 @@ def ai_generator():
     if request.method == "POST":
         ingredients_payload = request.form["ingredients"]
 
+servings = request.form.get(
+"servings",
+"2"
+)
+
         prompt = f"""You are a world-class chef. Create a detailed recipe using these ingredients: {ingredients_payload}
 
 Use EXACTLY this format with these exact section headers:
