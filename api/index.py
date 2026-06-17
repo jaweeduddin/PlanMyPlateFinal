@@ -558,38 +558,40 @@ def ai_generator():
     ingredients_payload = ""
 
     if request.method == "POST":
-        ingredients_payload = request.form["ingredients"]
+        if request.method == "POST":
 
-servings = request.form.get(
-"servings",
-"2"
-)
+    ingredients_payload = request.form["ingredients"]
 
-        prompt = f"""You are a world-class chef. Create a detailed recipe using these ingredients: {ingredients_payload}
+    servings = request.form.get(
+        "servings",
+        "2"
+    )
 
-Use EXACTLY this format with these exact section headers:
+    prompt = f"""
+You are a world-class chef.
+
+Create a detailed recipe for
+{servings} servings using these ingredients:
+
+{ingredients_payload}
+
+Use EXACTLY this format:
 
 RECIPE NAME:
 [Creative dish name here]
 
-SERVINGS: [number]
-COOKING TIME: [e.g. 35 minutes]
-CALORIES: [e.g. 420 kcal]
-PROTEIN: [e.g. 32g]
+SERVINGS: {servings}
+
+COOKING TIME:
+CALORIES:
+PROTEIN:
 
 INGREDIENTS:
-• [quantity] ingredient 1
-• [quantity] ingredient 2
-• [quantity] ingredient 3
-(list every ingredient, one per line, with quantities)
 
 INSTRUCTIONS:
-1. [Clear step — describe technique, heat level, visual cues]
-2. [Next step]
-3. [Continue until dish is complete]
-(minimum 6 steps, maximum 10 steps)
 
 CHEF'S TIPS:
+"""
 • [Tip 1 — flavor, texture, or substitution advice]
 • [Tip 2]
 • [Tip 3]
