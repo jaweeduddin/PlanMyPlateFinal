@@ -544,13 +544,35 @@ let selectedAlternatives = [];
 
 let currentAlternativeIndex = 0;
 
-async function openPopup() {
-window.scrollTo({
+function openPopup() {
 
-    top: 0,
+    const ingredients =
+        document.getElementById(
+            "ingredients"
+        ).value;
 
-    behavior: "smooth"
-});
+    if (ingredients.trim() === "") {
+
+        alert(
+            "Please enter ingredients first."
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "servings-popup"
+    ).style.display = "flex";
+}
+
+async function openIngredientPopup() {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    
     const ingredients =
         document.getElementById(
             "ingredients"
@@ -843,6 +865,87 @@ function saveAlternative() {
     }
 }
 </script>
+<div id="servings-popup" class="popup-overlay">
+
+    <div class="popup-box">
+
+        <h2>
+            Recipe Servings 🍽️
+        </h2>
+
+        <p>
+            How many servings do you want?
+        </p>
+
+        <div id="servings-container">
+
+            <label class="ingredient-item">
+                <input type="radio"
+                       name="serving_option"
+                       value="1">
+                1 Person
+            </label>
+
+            <label class="ingredient-item">
+                <input type="radio"
+                       name="serving_option"
+                       value="2"
+                       checked>
+                2 People
+            </label>
+
+            <label class="ingredient-item">
+                <input type="radio"
+                       name="serving_option"
+                       value="4">
+                4 People
+            </label>
+
+            <label class="ingredient-item">
+                <input type="radio"
+                       name="serving_option"
+                       value="6">
+                6 People
+            </label>
+
+            <label class="ingredient-item">
+                <input type="radio"
+                       name="serving_option"
+                       value="8">
+                8 People
+            </label>
+
+            <label class="ingredient-item">
+                <input type="radio"
+                       name="serving_option"
+                       value="custom">
+                Custom
+            </label>
+
+        </div>
+
+        <br>
+
+        <input
+            type="number"
+            id="custom-servings"
+            placeholder="Enter custom servings"
+            min="1"
+            style="display:none;">
+
+        <br><br>
+
+        <button
+            class="btn"
+            onclick="continueToIngredients()">
+
+            Continue ➜
+
+        </button>
+
+    </div>
+
+</div>
 <div id="ingredient-popup" class="popup-overlay">
 
     <div class="popup-box">
