@@ -558,41 +558,39 @@ def ai_generator():
     ingredients_payload = ""
 
     if request.method == "POST":
-        if request.method == "POST":
+        ingredients_payload = request.form["ingredients"]
 
-    ingredients_payload = request.form["ingredients"]
+        servings = request.form.get(
+            "servings",
+            "2"
+        )
+        print("SERVINGS =", servings)
+        prompt = f"""
+    You are a world-class chef.
 
-    servings = request.form.get(
-        "servings",
-        "2"
-    )
+    Create a detailed recipe for
+    {servings} servings using these ingredients:
 
-    prompt = f"""
-You are a world-class chef.
+    {ingredients_payload}
 
-Create a detailed recipe for
-{servings} servings using these ingredients:
+    Use EXACTLY this format:
 
-{ingredients_payload}
+    RECIPE NAME:
+    [Creative dish name here]
 
-Use EXACTLY this format:
+    SERVINGS: {servings}
 
-RECIPE NAME:
-[Creative dish name here]
+    COOKING TIME:
+    CALORIES:
+    PROTEIN:
 
-SERVINGS: {servings}
+    INGREDIENTS:
 
-COOKING TIME:
-CALORIES:
-PROTEIN:
+    INSTRUCTIONS:
 
-INGREDIENTS:
+    CHEF'S TIPS:
 
-INSTRUCTIONS:
-
-CHEF'S TIPS:
-"""
-• [Tip 1 — flavor, texture, or substitution advice]
+• [Tip 1] — flavor, texture, or substitution advice]
 • [Tip 2]
 • [Tip 3]
 
@@ -608,7 +606,11 @@ Rules:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.1-8b-instant"
             )
-            generated_recipe = chat_completion.choices[0].message.content
+            generated_recipe = f"""
+INGREDIENTS = {ingredients_payload}
+
+SERVINGS = {request.form.get('servings')}
+"""
         except Exception as e:
             generated_recipe = f"Error: {str(e)}"
 

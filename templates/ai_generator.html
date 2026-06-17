@@ -570,8 +570,39 @@ function openPopup() {
 }
 function continueToIngredients() {
 
-    alert("CONTINUE BUTTON CLICKED");
+    const selected =
+        document.querySelector(
+            'input[name="serving_option"]:checked'
+        );
 
+    let servings = selected.value;
+    document.getElementById(
+    "servings"
+).value = servings;
+    if (servings === "custom") {
+
+        servings =
+            document.getElementById(
+                "custom-servings"
+            ).value;
+         document.getElementById(
+        "servings"
+    ).value = servings;
+        if (!servings) {
+
+            alert(
+                "Please enter servings"
+            );
+
+            return;
+        }
+    }
+
+    document.getElementById(
+        "servings-popup"
+    ).style.display = "none";
+    
+    openIngredientPopup();
 }
 async function openIngredientPopup() {
 
