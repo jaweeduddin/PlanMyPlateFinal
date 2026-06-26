@@ -379,12 +379,13 @@ if ("serviceWorker" in navigator) {
     <div class="assistant-input">
 
         <input
-            type="text"
-            placeholder="Ask anything...">
+    type="text"
+    id="assistant-input"
+    placeholder="Ask anything...">
 
-        <button>
-            ➤
-        </button>
+<button id="assistant-send">
+    ➤
+</button>
 
     </div>
 
@@ -418,6 +419,44 @@ function() {
 
     assistantPanel.style.display =
     "none";
+};
+const sendBtn =
+document.getElementById(
+    "assistant-send"
+);
+
+const input =
+document.getElementById(
+    "assistant-input"
+);
+
+sendBtn.onclick =
+async function() {
+
+    const message =
+        input.value;
+
+    const response =
+        await fetch(
+            "/assistant_chat",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: message
+                })
+            }
+        );
+
+    const data =
+        await response.json();
+
+    alert(data.reply);
 };
 
 </script>
