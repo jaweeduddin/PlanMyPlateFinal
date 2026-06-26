@@ -433,12 +433,51 @@ document.getElementById(
 sendBtn.onclick =
 async function() {
 
-    alert("Button clicked");
-
     const message =
         input.value;
 
-    console.log(message);
+    try {
+
+        const response =
+            await fetch(
+                "/assistant_chat",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: message
+                    })
+                }
+            );
+
+        alert(
+            "Status: " +
+            response.status
+        );
+
+        const data =
+            await response.json();
+
+        alert(
+            data.reply
+        );
+
+    }
+
+    catch(error) {
+
+        alert(
+            "ERROR: " +
+            error
+        );
+
+        console.log(error);
+    }
 };
 
 </script>
