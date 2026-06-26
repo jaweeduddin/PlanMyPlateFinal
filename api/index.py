@@ -245,63 +245,44 @@ def dashboard():
 @app.route("/assistant_chat", methods=["POST"])
 def assistant_chat():
 
-    data = request.get_json()
+    if "user_id" not in session:
+        return {"reply": "Please log in to use the assistant."}, 401
 
-    user_message = data.get("message")
+    data = request.get_json()
+    message = data.get("message", "").strip()
+
+    if not message:
+        return {"reply": "Please type a message first."}, 400
 
     try:
-
-        chat_completion = client.chat.completions.create(
-
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
             messages=[
-
                 {
                     "role": "system",
-
-                    "content": """
-You are PlanMyPlate AI Assistant.
-
-You help users with:
-
-- Add Recipe
-- Favorite Recipes
-- AI Generator
-- Meal Planner
-- Nutrition Planner
-- Smart Cart
-- Recipe Search
-
-Keep answers short and friendly.
-
-You also answer food, nutrition and cooking questions.
-"""
+                    "content": (
+                        "You are PlanMyPlate AI, a friendly and expert food & nutrition assistant. "
+                        "You help users with recipes, meal planning, ingredient substitutions, nutrition advice, "
+                        "cooking tips, and reducing food waste. "
+                        "Keep responses clear, practical, and well-structured. "
+                        "Use bullet points or numbered steps when listing things. "
+                        "Use emojis naturally to make responses feel warm and engaging. "
+                        "Be concise but thorough — no unnecessary filler. "
+                        "If asked something unrelated to food or nutrition, politely steer back to your expertise."
+                    )
                 },
-
                 {
                     "role": "user",
-                    "content": user_message
+                    "content": message
                 }
-            ],
-
-            model="llama-3.1-8b-instant"
+            ]
         )
 
-        reply = (
-            chat_completion
-            .choices[0]
-            .message.content
-        )
-
-        return jsonify({
-            "reply": reply
-        })
+        reply = response.choices[0].message.content.strip()
+        return {"reply": reply}
 
     except Exception as e:
-
-        return jsonify({
-            "reply": str(e)
-        })
-
+        return {"reply": "Sorry, I couldn't process your request right now. Please try again."}, 500
 # ---------------- ADD RECIPE ---------------- #
 
 @app.route("/add_recipe", methods=["GET", "POST"])
