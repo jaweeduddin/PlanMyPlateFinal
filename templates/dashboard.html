@@ -462,28 +462,22 @@ async function() {
         await response.json();
 
     messagesBox.innerHTML += `
-
-<div
-class="assistant-message">
-
-<b>You:</b>
-
+<div class="user-message">
 ${message}
-
 </div>
-
-<div
-class="assistant-message">
-
-<b>🤖 AI:</b>
-
-${data.reply}
-
-</div>
-
 `;
 
-input.value = "";
+    messagesBox.innerHTML += `
+<div class="assistant-message">
+<b>🤖 AI:</b>
+${data.reply}
+</div>
+`;
+
+    messagesBox.scrollTop =
+    messagesBox.scrollHeight;
+
+    input.value = "";
 };
 
 </script>

@@ -2211,3 +2211,39 @@ color: #ff7a00;
 
     margin-left: 10px;
 }
+
+.user-message {
+
+    background: #52b788;
+
+    color: white;
+
+    padding: 12px;
+
+    border-radius: 15px;
+
+    margin: 10px;
+
+    max-width: 80%;
+
+    margin-left: auto;
+
+    text-align: right;
+}
+
+.ai-message {
+
+    background: #f1f3f5;
+
+    color: black;
+
+    padding: 12px;
+
+    border-radius: 15px;
+
+    margin: 10px;
+
+    max-width: 80%;
+
+    margin-right: auto;
+}
