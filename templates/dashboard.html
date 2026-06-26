@@ -838,11 +838,13 @@ if ("serviceWorker" in navigator) {
 
     <!-- Quick-action chips -->
     <div class="assistant-chips">
-        <div class="assistant-chip" onclick="chipAsk('Suggest a quick dinner recipe')">🍜 Quick Dinner</div>
-        <div class="assistant-chip" onclick="chipAsk('What can I cook with chicken and rice?')">🍗 Chicken Ideas</div>
-        <div class="assistant-chip" onclick="chipAsk('Give me a healthy breakfast idea')">🥗 Healthy Breakfast</div>
-        <div class="assistant-chip" onclick="chipAsk('How do I reduce food waste?')">♻️ Food Waste Tips</div>
-        <div class="assistant-chip" onclick="chipAsk('Suggest a high protein meal')">💪 High Protein</div>
+        <div class="assistant-chip" onclick="chipAsk('How do I use the AI Generator?')">🤖 AI Generator</div>
+        <div class="assistant-chip" onclick="chipAsk('How does the Nutrition Planner work?')">🥗 Nutrition Planner</div>
+        <div class="assistant-chip" onclick="chipAsk('How do I plan my weekly meals?')">📅 Meal Planner</div>
+        <div class="assistant-chip" onclick="chipAsk('What is the Smart Cart?')">🛒 Smart Cart</div>
+        <div class="assistant-chip" onclick="chipAsk('How do I save a recipe to favorites?')">❤️ Favorites</div>
+        <div class="assistant-chip" onclick="chipAsk('How do I search for a recipe?')">🔍 Recipe Search</div>
+        <div class="assistant-chip" onclick="chipAsk('How does voice input work?')">🎤 Voice</div>
     </div>
 
     <!-- Messages -->
@@ -852,9 +854,10 @@ if ("serviceWorker" in navigator) {
             <div class="msg-avatar">🍽️</div>
             <div class="msg-bubble">
                 <span class="msg-label">PlanMyPlate AI</span>
-                Hello {{ username }} 👋 I'm your personal food &amp; nutrition assistant. Ask me anything — recipes, meal ideas, nutrition tips, or ingredient swaps!
+                Hey {{ username }} 👋 I'm your PlanMyPlate assistant — I know everything about this app!<br><br>
+                I can help you with 🤖 AI Generator, 🔍 Recipe Search, 📅 Meal Planner, 🥗 Nutrition Planner, 🛒 Smart Cart, ❤️ Favorites, and any food or cooking question. Just ask!
                 <br>
-                <button class="msg-speak-btn" onclick="speakText(this.closest('.msg-bubble').querySelector('.msg-label').nextSibling.textContent.trim())">🔊 Listen</button>
+                <button class="msg-speak-btn" onclick="speakText('Hey {{ username }}! I am your PlanMyPlate assistant. I know everything about this app. Just ask me anything!')">🔊 Listen</button>
             </div>
         </div>
 
@@ -1004,7 +1007,10 @@ async function sendMessage() {
         const response = await fetch("/assistant_chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({
+                message: message,
+                username: "{{ username }}"
+            })
         });
 
         const data = await response.json();
