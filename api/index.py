@@ -249,12 +249,58 @@ def assistant_chat():
 
     user_message = data.get("message")
 
-    return jsonify({
+    try:
 
-        "reply":
-        f"You said: {user_message}"
+        chat_completion = client.chat.completions.create(
 
-    })
+            messages=[
+
+                {
+                    "role": "system",
+
+                    "content": """
+You are PlanMyPlate AI Assistant.
+
+You help users with:
+
+- Add Recipe
+- Favorite Recipes
+- AI Generator
+- Meal Planner
+- Nutrition Planner
+- Smart Cart
+- Recipe Search
+
+Keep answers short and friendly.
+
+You also answer food, nutrition and cooking questions.
+"""
+                },
+
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ],
+
+            model="llama-3.1-8b-instant"
+        )
+
+        reply = (
+            chat_completion
+            .choices[0]
+            .message.content
+        )
+
+        return jsonify({
+            "reply": reply
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "reply": str(e)
+        })
 
 # ---------------- ADD RECIPE ---------------- #
 

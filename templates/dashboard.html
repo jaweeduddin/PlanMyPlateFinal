@@ -436,48 +436,27 @@ async function() {
     const message =
         input.value;
 
-    try {
+    const response =
+        await fetch(
+            "/assistant_chat",
+            {
+                method: "POST",
 
-        const response =
-            await fetch(
-                "/assistant_chat",
-                {
-                    method: "POST",
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
 
-                    headers: {
-                        "Content-Type":
-                        "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        message: message
-                    })
-                }
-            );
-
-        alert(
-            "Status: " +
-            response.status
+                body: JSON.stringify({
+                    message: message
+                })
+            }
         );
 
-        const data =
-            await response.json();
+    const data =
+        await response.json();
 
-        alert(
-            data.reply
-        );
-
-    }
-
-    catch(error) {
-
-        alert(
-            "ERROR: " +
-            error
-        );
-
-        console.log(error);
-    }
+    alert(data.reply);
 };
 
 </script>
