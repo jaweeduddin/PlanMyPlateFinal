@@ -334,6 +334,15 @@ def meal_planner():
 
     # 1. Fetch user recipes and format them safely for JavaScript consumption
     all_user_recipes = Recipe.query.filter_by(user_id=user_id).all()
+    formatted_recipes = []
+    for r in all_user_recipes:
+        formatted_recipes.append([
+            r.id,           # recipe[0]
+            r.user_id,      # recipe[1]
+            r.title,        # recipe[2]
+            clean_multiline_text(r.ingredients),  # recipe[3]
+            clean_multiline_text(r.instructions)  # recipe[4]
+        ])
     
     # 2. Relational Database Inner Join: Connect MealPlan IDs to actual Recipe text blocks
     joined_data = db.session.query(MealPlan, Recipe).join(Recipe, MealPlan.recipe_id == Recipe.id).filter(MealPlan.user_id == user_id).all()
@@ -349,7 +358,7 @@ def meal_planner():
             plan.id              # plan[4]
         ])
 
-    return render_template("meal_planner.html", recipes=all_user_recipes, plans=formatted_plans)
+    return render_template("meal_planner.html", recipes=formatted_recipes, plans=formatted_plans)
 
 
 # ---------------- DELETE MEAL ---------------- #
