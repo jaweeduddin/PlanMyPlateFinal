@@ -347,138 +347,707 @@ if ("serviceWorker" in navigator) {
 }
 
 </script>
+<!-- ========== AI ASSISTANT STYLES ========== -->
+<style>
+
+/* --- Floating Button --- */
+#pmp-assistant-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    box-shadow: 0 6px 24px rgba(76,175,80,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9998;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 3px solid rgba(255,255,255,0.25);
+}
+
+#pmp-assistant-btn:hover {
+    transform: scale(1.1) rotate(-5deg);
+    box-shadow: 0 10px 32px rgba(76,175,80,0.55);
+}
+
+#pmp-assistant-btn span {
+    font-size: 26px;
+    line-height: 1;
+}
+
+/* Pulse ring */
+#pmp-assistant-btn::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(76,175,80,0.35);
+    animation: pmp-pulse 2.2s ease-out infinite;
+}
+
+@keyframes pmp-pulse {
+    0%   { transform: scale(1);   opacity: 0.7; }
+    70%  { transform: scale(1.55); opacity: 0; }
+    100% { transform: scale(1.55); opacity: 0; }
+}
+
+/* --- Panel --- */
+#pmp-assistant-panel {
+    display: none;
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: 560px;
+    max-height: calc(100vh - 120px);
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow:
+        0 8px 40px rgba(0,0,0,0.14),
+        0 2px 8px rgba(0,0,0,0.08);
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(76,175,80,0.15);
+    animation: pmp-slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes pmp-slideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* --- Header --- */
+.assistant-header {
+    background: linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.assistant-header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.35);
+}
+
+.assistant-header-info {
+    flex: 1;
+}
+
+.assistant-header-info h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.assistant-header-info span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+}
+
+.assistant-status-dot {
+    width: 7px;
+    height: 7px;
+    background: #a5d6a7;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pmp-blink 2s ease infinite;
+}
+
+@keyframes pmp-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+.assistant-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.assistant-header-actions button {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    color: #fff;
+}
+
+.assistant-header-actions button:hover {
+    background: rgba(255,255,255,0.28);
+}
+
+/* --- Quick Chips --- */
+.assistant-chips {
+    display: flex;
+    gap: 7px;
+    padding: 12px 16px 4px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+
+.assistant-chips::-webkit-scrollbar { display: none; }
+
+.assistant-chip {
+    background: #f0faf0;
+    border: 1px solid #c8e6c9;
+    color: #2e7d32;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s;
+    font-weight: 500;
+}
+
+.assistant-chip:hover {
+    background: #c8e6c9;
+    transform: translateY(-1px);
+}
+
+/* --- Messages --- */
+.assistant-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+}
+
+.assistant-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.assistant-messages::-webkit-scrollbar-thumb {
+    background: #c8e6c9;
+    border-radius: 4px;
+}
+
+/* AI message bubble */
+.assistant-message {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    animation: pmp-fadeIn 0.25s ease both;
+}
+
+@keyframes pmp-fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+
+.assistant-message .msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.assistant-message .msg-bubble {
+    background: #f8fffe;
+    border: 1px solid #e8f5e9;
+    border-radius: 4px 16px 16px 16px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #1b2e1c;
+    max-width: calc(100% - 42px);
+    word-break: break-word;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.assistant-message .msg-bubble .msg-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #4CAF50;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Speak button inside bubble */
+.msg-speak-btn {
+    background: none;
+    border: 1px solid #c8e6c9;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: #2e7d32;
+    cursor: pointer;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.18s;
+}
+
+.msg-speak-btn:hover {
+    background: #e8f5e9;
+}
+
+/* User message bubble */
+.user-message {
+    display: flex;
+    justify-content: flex-end;
+    animation: pmp-fadeIn 0.2s ease both;
+}
+
+.user-message .msg-bubble {
+    background: linear-gradient(135deg, #4CAF50, #388e3c);
+    color: #fff;
+    border-radius: 16px 4px 16px 16px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    max-width: 80%;
+    word-break: break-word;
+    box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+}
+
+/* Typing indicator */
+.typing-indicator {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    animation: pmp-fadeIn 0.2s ease both;
+}
+
+.typing-indicator .msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.typing-dots {
+    background: #f0faf0;
+    border: 1px solid #e8f5e9;
+    border-radius: 4px 16px 16px 16px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.typing-dots span {
+    width: 7px;
+    height: 7px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: pmp-dot 1.2s ease infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pmp-dot {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+    40%           { transform: scale(1.1); opacity: 1; }
+}
+
+/* --- Input Row --- */
+.assistant-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid #f0f0f0;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+#assistant-input {
+    flex: 1;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fafafa;
+    color: #1b2e1c;
+    font-family: inherit;
+}
+
+#assistant-input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+    background: #fff;
+}
+
+#assistant-input::placeholder {
+    color: #aaa;
+}
+
+.assistant-action-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: transform 0.18s, box-shadow 0.18s;
+}
+
+#assistant-mic {
+    background: #f0faf0;
+    border: 1.5px solid #c8e6c9;
+    color: #2e7d32;
+}
+
+#assistant-mic:hover,
+#assistant-mic.listening {
+    background: #e8f5e9;
+    transform: scale(1.08);
+}
+
+#assistant-mic.listening {
+    box-shadow: 0 0 0 4px rgba(76,175,80,0.2);
+    animation: pmp-mic-pulse 1s ease infinite;
+}
+
+@keyframes pmp-mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(76,175,80,0.2); }
+    50%       { box-shadow: 0 0 0 8px rgba(76,175,80,0.08); }
+}
+
+#assistant-send {
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(76,175,80,0.35);
+}
+
+#assistant-send:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 14px rgba(76,175,80,0.45);
+}
+
+</style>
+
+<!-- ========== AI ASSISTANT HTML ========== -->
 <div id="pmp-assistant-btn">
 
     <span>🤖</span>
 
 </div>
+
 <div id="pmp-assistant-panel">
 
+    <!-- Header -->
     <div class="assistant-header">
 
-        🤖 PlanMyPlate AI
+        <div class="assistant-header-avatar">🍽️</div>
 
-        <span id="close-assistant">
-            ✖
-        </span>
+        <div class="assistant-header-info">
+            <h4>PlanMyPlate AI</h4>
+            <span>
+                <i class="assistant-status-dot"></i>
+                Online &amp; ready to help
+            </span>
+        </div>
 
-    </div>
-
-    <div
-    class="assistant-messages"
-    id="assistant-messages">
-
-    <div class="assistant-message">
-
-        Hello Abrar 👋
-
-        How can I help you today?
+        <div class="assistant-header-actions">
+            <button id="assistant-clear-btn" title="Clear chat">🗑️</button>
+            <button id="close-assistant" title="Close">✕</button>
+        </div>
 
     </div>
 
-</div>
+    <!-- Quick-action chips -->
+    <div class="assistant-chips">
+        <div class="assistant-chip" onclick="chipAsk('Suggest a quick dinner recipe')">🍜 Quick Dinner</div>
+        <div class="assistant-chip" onclick="chipAsk('What can I cook with chicken and rice?')">🍗 Chicken Ideas</div>
+        <div class="assistant-chip" onclick="chipAsk('Give me a healthy breakfast idea')">🥗 Healthy Breakfast</div>
+        <div class="assistant-chip" onclick="chipAsk('How do I reduce food waste?')">♻️ Food Waste Tips</div>
+        <div class="assistant-chip" onclick="chipAsk('Suggest a high protein meal')">💪 High Protein</div>
+    </div>
 
+    <!-- Messages -->
+    <div class="assistant-messages" id="assistant-messages">
+
+        <div class="assistant-message">
+            <div class="msg-avatar">🍽️</div>
+            <div class="msg-bubble">
+                <span class="msg-label">PlanMyPlate AI</span>
+                Hello {{ username }} 👋 I'm your personal food &amp; nutrition assistant. Ask me anything — recipes, meal ideas, nutrition tips, or ingredient swaps!
+                <br>
+                <button class="msg-speak-btn" onclick="speakText(this.closest('.msg-bubble').querySelector('.msg-label').nextSibling.textContent.trim())">🔊 Listen</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Input row -->
     <div class="assistant-input">
 
         <input
-    type="text"
-    id="assistant-input"
-    placeholder="Ask anything...">
+            type="text"
+            id="assistant-input"
+            placeholder="Ask about recipes, nutrition…"
+            autocomplete="off">
 
-<button id="assistant-send">
-    ➤
-</button>
+        <button
+            class="assistant-action-btn"
+            id="assistant-mic"
+            title="Voice input">
+            🎤
+        </button>
+
+        <button
+            class="assistant-action-btn"
+            id="assistant-send"
+            title="Send">
+            ➤
+        </button>
 
     </div>
 
 </div>
+
+<!-- ========== AI ASSISTANT SCRIPT ========== -->
 <script>
 
-const assistantBtn =
-document.getElementById(
-    "pmp-assistant-btn"
-);
+/* ---- DOM refs ---- */
+const assistantBtn    = document.getElementById("pmp-assistant-btn");
+const assistantPanel  = document.getElementById("pmp-assistant-panel");
+const closeBtn        = document.getElementById("close-assistant");
+const clearBtn        = document.getElementById("assistant-clear-btn");
+const sendBtn         = document.getElementById("assistant-send");
+const micBtn          = document.getElementById("assistant-mic");
+const input           = document.getElementById("assistant-input");
+const messagesBox     = document.getElementById("assistant-messages");
 
-const assistantPanel =
-document.getElementById(
-    "pmp-assistant-panel"
-);
-
-const closeBtn =
-document.getElementById(
-    "close-assistant"
-);
-
-assistantBtn.onclick =
-function() {
-
-    assistantPanel.style.display =
-    "block";
+/* ---- Open / Close ---- */
+assistantBtn.onclick = function() {
+    assistantPanel.style.display = "flex";
+    input.focus();
 };
 
-closeBtn.onclick =
-function() {
-
-    assistantPanel.style.display =
-    "none";
+closeBtn.onclick = function() {
+    assistantPanel.style.display = "none";
 };
-const sendBtn =
-document.getElementById(
-    "assistant-send"
-);
 
-const input =
-document.getElementById(
-    "assistant-input"
-);
-const messagesBox =
-document.getElementById(
-    "assistant-messages"
-);
-sendBtn.onclick =
-async function() {
+/* ---- Clear chat ---- */
+clearBtn.onclick = function() {
+    messagesBox.innerHTML = `
+        <div class="assistant-message">
+            <div class="msg-avatar">🍽️</div>
+            <div class="msg-bubble">
+                <span class="msg-label">PlanMyPlate AI</span>
+                Chat cleared! How can I help you? 😊
+                <br>
+                <button class="msg-speak-btn" onclick="speakText('Chat cleared! How can I help you?')">🔊 Listen</button>
+            </div>
+        </div>`;
+};
 
-    const message =
-        input.value;
+/* ---- Chip quick-ask ---- */
+function chipAsk(text) {
+    input.value = text;
+    sendMessage();
+}
 
-    const response =
-        await fetch(
-            "/assistant_chat",
-            {
-                method: "POST",
+/* ---- Speak text (TTS) ---- */
+function speakText(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang  = "en-US";
+    utt.rate  = 0.95;
+    utt.pitch = 1.05;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v =>
+        v.name.includes("Google") ||
+        v.name.includes("Natural") ||
+        v.name.includes("Female")
+    );
+    if (preferred) utt.voice = preferred;
+    window.speechSynthesis.speak(utt);
+}
 
-                headers: {
-                    "Content-Type":
-                    "application/json"
-                },
+/* ---- Typing indicator ---- */
+function showTyping() {
+    const el = document.createElement("div");
+    el.className = "typing-indicator";
+    el.id = "typing-indicator";
+    el.innerHTML = `
+        <div class="msg-avatar">🍽️</div>
+        <div class="typing-dots">
+            <span></span><span></span><span></span>
+        </div>`;
+    messagesBox.appendChild(el);
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+}
 
-                body: JSON.stringify({
-                    message: message
-                })
-            }
-        );
+function hideTyping() {
+    const el = document.getElementById("typing-indicator");
+    if (el) el.remove();
+}
 
-    const data =
-        await response.json();
+/* ---- Format AI reply (markdown-lite) ---- */
+function formatReply(text) {
+    return text
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.+?)\*/g,     "<em>$1</em>")
+        .replace(/`(.+?)`/g,       "<code style='background:#f0faf0;padding:1px 5px;border-radius:4px;font-size:12.5px;color:#2e7d32'>$1</code>")
+        .replace(/^#{1,3}\s(.+)/gm,"<strong style='color:#2e7d32;display:block;margin-top:6px'>$1</strong>")
+        .replace(/\n/g,            "<br>");
+}
 
-    messagesBox.innerHTML += `
-<div class="user-message">
-${message}
-</div>
-`;
+/* ---- Send message ---- */
+async function sendMessage() {
 
-    messagesBox.innerHTML += `
-<div class="assistant-message">
-<b>🤖 AI:</b>
-${data.reply}
-</div>
-`;
+    const message = input.value.trim();
+    if (!message) return;
 
-    messagesBox.scrollTop =
-    messagesBox.scrollHeight;
+    /* User bubble */
+    const userDiv = document.createElement("div");
+    userDiv.className = "user-message";
+    userDiv.innerHTML = `<div class="msg-bubble">${message}</div>`;
+    messagesBox.appendChild(userDiv);
+    messagesBox.scrollTop = messagesBox.scrollHeight;
 
     input.value = "";
+    sendBtn.disabled = true;
+    showTyping();
+
+    try {
+        const response = await fetch("/assistant_chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+        hideTyping();
+
+        const replyText   = data.reply || "Sorry, I couldn't get a response.";
+        const formattedReply = formatReply(replyText);
+
+        const aiDiv = document.createElement("div");
+        aiDiv.className = "assistant-message";
+        aiDiv.innerHTML = `
+            <div class="msg-avatar">🍽️</div>
+            <div class="msg-bubble">
+                <span class="msg-label">PlanMyPlate AI</span>
+                ${formattedReply}
+                <br>
+                <button class="msg-speak-btn" onclick="speakText(this.closest('.msg-bubble').innerText.replace('PlanMyPlate AI','').replace('Listen','').trim())">🔊 Listen</button>
+            </div>`;
+        messagesBox.appendChild(aiDiv);
+
+    } catch (err) {
+        hideTyping();
+        const errDiv = document.createElement("div");
+        errDiv.className = "assistant-message";
+        errDiv.innerHTML = `
+            <div class="msg-avatar">🍽️</div>
+            <div class="msg-bubble">
+                <span class="msg-label">PlanMyPlate AI</span>
+                ⚠️ Something went wrong. Please try again.
+            </div>`;
+        messagesBox.appendChild(errDiv);
+    }
+
+    sendBtn.disabled = false;
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+
+sendBtn.onclick  = sendMessage;
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendMessage();
+});
+
+/* ---- Voice input (mic) ---- */
+micBtn.onclick = function() {
+
+    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+        alert("Voice input not supported in this browser.");
+        return;
+    }
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SR();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    micBtn.classList.add("listening");
+    micBtn.textContent = "⏹";
+
+    recognition.onresult = function(event) {
+        input.value = event.results[0][0].transcript;
+        micBtn.classList.remove("listening");
+        micBtn.textContent = "🎤";
+        sendMessage();
+    };
+
+    recognition.onerror = function() {
+        micBtn.classList.remove("listening");
+        micBtn.textContent = "🎤";
+    };
+
+    recognition.onend = function() {
+        micBtn.classList.remove("listening");
+        micBtn.textContent = "🎤";
+    };
+
+    recognition.start();
 };
+
+/* pre-load TTS voices */
+window.speechSynthesis && window.speechSynthesis.getVoices();
 
 </script>
 </body>
