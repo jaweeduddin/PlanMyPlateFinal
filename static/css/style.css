@@ -2117,3 +2117,97 @@ color: #ff7a00;
 
     transform: scale(1.1);
 }
+#pmp-assistant-panel {
+
+    position: fixed;
+
+    bottom: 120px;
+
+    right: 30px;
+
+    width: 350px;
+
+    height: 500px;
+
+    background: white;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 20px 60px rgba(
+            0,
+            0,
+            0,
+            0.15
+        );
+
+    z-index: 99999;
+
+    display: none;
+
+    overflow: hidden;
+}
+
+.assistant-header {
+
+    background:
+    linear-gradient(
+        135deg,
+        #1a4731,
+        #52b788
+    );
+
+    color: white;
+
+    padding: 18px;
+
+    font-weight: bold;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.assistant-messages {
+
+    height: 360px;
+
+    padding: 15px;
+
+    overflow-y: auto;
+}
+
+.assistant-message {
+
+    background: #f5f5f5;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    margin-bottom: 10px;
+}
+
+.assistant-input {
+
+    display: flex;
+
+    padding: 10px;
+
+    border-top:
+    1px solid #ddd;
+}
+
+.assistant-input input {
+
+    flex: 1;
+
+    padding: 10px;
+}
+
+.assistant-input button {
+
+    margin-left: 10px;
+}

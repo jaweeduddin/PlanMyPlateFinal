@@ -352,6 +352,74 @@ if ("serviceWorker" in navigator) {
     <span>🤖</span>
 
 </div>
+<div id="pmp-assistant-panel">
 
+    <div class="assistant-header">
+
+        🤖 PlanMyPlate AI
+
+        <span id="close-assistant">
+            ✖
+        </span>
+
+    </div>
+
+    <div class="assistant-messages">
+
+        <div class="assistant-message">
+
+            Hello Abrar 👋
+
+            How can I help you today?
+
+        </div>
+
+    </div>
+
+    <div class="assistant-input">
+
+        <input
+            type="text"
+            placeholder="Ask anything...">
+
+        <button>
+            ➤
+        </button>
+
+    </div>
+
+</div>
+<script>
+
+const assistantBtn =
+document.getElementById(
+    "pmp-assistant-btn"
+);
+
+const assistantPanel =
+document.getElementById(
+    "pmp-assistant-panel"
+);
+
+const closeBtn =
+document.getElementById(
+    "close-assistant"
+);
+
+assistantBtn.onclick =
+function() {
+
+    assistantPanel.style.display =
+    "block";
+};
+
+closeBtn.onclick =
+function() {
+
+    assistantPanel.style.display =
+    "none";
+};
+
+</script>
 </body>
 </html>
