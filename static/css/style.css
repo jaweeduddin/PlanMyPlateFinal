@@ -2068,3 +2068,54 @@ color: #ff7a00;
 
     transform: translateZ(0);
 }
+/* ==========================
+   PlanMyPlate AI Assistant
+   ========================== */
+
+#pmp-assistant-btn {
+
+    position: fixed;
+
+    bottom: 25px;
+
+    right: 25px;
+
+    width: 70px;
+
+    height: 70px;
+
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #1a4731,
+        #52b788
+    );
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 30px;
+
+    cursor: pointer;
+
+    z-index: 9999;
+
+    box-shadow:
+        0 10px 30px rgba(
+            45,
+            106,
+            79,
+            0.35
+        );
+
+    transition: 0.3s;
+}
+
+#pmp-assistant-btn:hover {
+
+    transform: scale(1.1);
+}
