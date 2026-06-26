@@ -364,17 +364,19 @@ if ("serviceWorker" in navigator) {
 
     </div>
 
-    <div class="assistant-messages">
+    <div
+    class="assistant-messages"
+    id="assistant-messages">
 
-        <div class="assistant-message">
+    <div class="assistant-message">
 
-            Hello Abrar 👋
+        Hello Abrar 👋
 
-            How can I help you today?
-
-        </div>
+        How can I help you today?
 
     </div>
+
+</div>
 
     <div class="assistant-input">
 
@@ -429,7 +431,10 @@ const input =
 document.getElementById(
     "assistant-input"
 );
-
+const messagesBox =
+document.getElementById(
+    "assistant-messages"
+);
 sendBtn.onclick =
 async function() {
 
@@ -456,7 +461,29 @@ async function() {
     const data =
         await response.json();
 
-    alert(data.reply);
+    messagesBox.innerHTML += `
+
+<div
+class="assistant-message">
+
+<b>You:</b>
+
+${message}
+
+</div>
+
+<div
+class="assistant-message">
+
+<b>🤖 AI:</b>
+
+${data.reply}
+
+</div>
+
+`;
+
+input.value = "";
 };
 
 </script>
