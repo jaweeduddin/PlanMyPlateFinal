@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 from groq import Groq
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask import request, jsonify
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -241,6 +242,19 @@ def dashboard():
 
     return render_template("dashboard.html", username=session["username"])
 
+@app.route("/assistant_chat", methods=["POST"])
+def assistant_chat():
+
+    data = request.get_json()
+
+    user_message = data.get("message")
+
+    return jsonify({
+
+        "reply":
+        f"You said: {user_message}"
+
+    })
 
 # ---------------- ADD RECIPE ---------------- #
 
