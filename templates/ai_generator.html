@@ -735,16 +735,9 @@ async function submitRecipeForm() {
             
             fetchPromises.push(promise);
 
-            if (
-                ingredientAlternatives[
-                    ingredient
-                ]
-            ) {
-
-                uncheckedIngredients.push(
-                    ingredient
-                );
-            }
+            uncheckedIngredients.push(
+                ingredient
+            );
         }
     });
 
@@ -757,8 +750,10 @@ async function submitRecipeForm() {
             "ingredients"
         );
 
-    ingredientsBox.value +=
-        ", " + selected.join(", ");
+    if (selected.length > 0) {
+        ingredientsBox.value +=
+            ", " + selected.join(", ");
+    }
 
     if (
         uncheckedIngredients.length > 0
@@ -789,7 +784,7 @@ window.scrollTo({
     const alternatives =
         ingredientAlternatives[
             ingredient
-        ];
+        ] || [];
 
     let optionsHTML = "";
 
@@ -809,6 +804,22 @@ window.scrollTo({
             </label>
         `;
     });
+
+    const isChecked = alternatives.length === 0 ? "checked" : "";
+    const labelText = alternatives.length > 0 ? "I don't have these either" : "I don't have this either";
+    optionsHTML += `
+        <label class="ingredient-item" style="grid-column: span 2;">
+
+            <input
+                type="radio"
+                name="alternative"
+                value="none"
+                ${isChecked}>
+
+            ${labelText}
+
+        </label>
+    `;
 
     document.body.insertAdjacentHTML(
         "beforeend",
@@ -868,7 +879,7 @@ function saveAlternative() {
             'input[name="alternative"]:checked'
         );
 
-    if (selected) {
+    if (selected && selected.value !== "none") {
 
         selectedAlternatives.push(
             selected.value
@@ -895,9 +906,11 @@ function saveAlternative() {
                 "ingredients"
             );
 
-        ingredientsBox.value +=
-            ", " +
-            selectedAlternatives.join(", ");
+        if (selectedAlternatives.length > 0) {
+            ingredientsBox.value +=
+                ", " +
+                selectedAlternatives.join(", ");
+        }
 
         document.getElementById(
             "recipe-form"
