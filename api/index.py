@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 from groq import Groq
 from flask_sqlalchemy import SQLAlchemy
 import os
+from sqlalchemy import inspect
 from flask import request, jsonify
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
@@ -64,6 +65,10 @@ class SmartCart(db.Model):
         primary_key=True
     )
 
+    user_id = db.Column(
+        db.Integer
+    )
+
     ingredient = db.Column(
         db.String(100)
     )
@@ -72,6 +77,15 @@ class SmartCart(db.Model):
 
 with app.app_context():
     db.create_all()
+    try:
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('smart_cart')]
+        if 'user_id' not in columns:
+            db.session.execute(db.text("ALTER TABLE smart_cart ADD COLUMN user_id INTEGER;"))
+            db.session.commit()
+            print("Successfully migrated smart_cart table to include user_id column.")
+    except Exception as e:
+        print("Database migration warning:", e)
 
 emoji_map = {
 
@@ -963,6 +977,10 @@ INSTRUCTIONS:
 )
 def save_missing_ingredient():
 
+    if "user_id" not in session:
+        return {"error": "Unauthorized"}, 401
+
+    user_id = session["user_id"]
     data = request.get_json()
 
     ingredient = data.get(
@@ -970,12 +988,14 @@ def save_missing_ingredient():
     )
 
     existing = SmartCart.query.filter_by(
+        user_id=user_id,
         ingredient=ingredient
     ).first()
 
     if not existing:
 
         new_item = SmartCart(
+            user_id=user_id,
             ingredient=ingredient
         )
 
@@ -998,7 +1018,8 @@ def smart_cart():
     if "user_id" not in session:
         return redirect("/login")
 
-    items = SmartCart.query.all()
+    user_id = session["user_id"]
+    items = SmartCart.query.filter_by(user_id=user_id).all()
 
     formatted_items = []
 
@@ -1033,7 +1054,11 @@ def smart_cart():
 )
 def remove_smart_cart(id):
 
-    item = SmartCart.query.get(id)
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user_id = session["user_id"]
+    item = SmartCart.query.filter_by(id=id, user_id=user_id).first()
 
     if item:
 
