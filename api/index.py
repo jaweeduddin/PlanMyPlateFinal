@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from sqlalchemy import inspect
 from flask import request, jsonify
+from api.dish_photos import DISH_PHOTOS
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -844,8 +845,15 @@ def recipe_search():
 
     recipe_name = request.args.get("recipe")
     result = ""
+    recipe_image_url = "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?q=80&w=1200&auto=format&fit=crop"
 
     if recipe_name:
+        recipe_name_lower = recipe_name.lower().strip()
+        for key, url in DISH_PHOTOS.items():
+            if key in recipe_name_lower:
+                recipe_image_url = url
+                break
+
         prompt = f"""
 Generate a beautiful recipe for:
 
@@ -880,7 +888,12 @@ Keep language simple and clean.
         except Exception as e:
             result = str(e)
 
-    return render_template("recipe_search.html", result=result, recipe_name=recipe_name)
+    return render_template(
+        "recipe_search.html",
+        result=result,
+        recipe_name=recipe_name,
+        recipe_image_url=recipe_image_url
+    )
 
 
 # ---------------- SAVE AI RECIPE ---------------- #
