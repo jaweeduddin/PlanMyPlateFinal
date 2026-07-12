@@ -1,0 +1,30 @@
+1. Check what's eating your RAM
+powershellGet-Process | Sort-Object WS -Descending | Select-Object -First 15 Name, Id, @{Name="RAM(MB)";Expression={[math]::Round($_.WS/1MB,2)}}
+2. Kill a specific heavy process
+powershellStop-Process -Name "ProcessNameHere" -Force
+3. See free vs total RAM
+powershellGet-CimInstance Win32_OperatingSystem | Select-Object @{N="FreeRAM(MB)";E={[math]::Round($_.FreePhysicalMemory/1024,2)}}, @{N="TotalRAM(MB)";E={[math]::Round($_.TotalVisibleMemorySize/1024,2)}}
+4. Clear temp files (frees disk + speeds boot)
+powershellRemove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "C:\Windows\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
+5. Empty Recycle Bin
+powershellClear-RecycleBin -Force -ErrorAction SilentlyContinue
+6. See startup programs (so you can disable heavy ones)
+powershellGet-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location
+7. Disable a specific startup program (replace NAME)
+powershellGet-CimInstance Win32_StartupCommand | Where-Object {$_.Name -like "*NAME*"}
+(To actually remove it, delete the entry via Task Manager > Startup tab — safer than editing registry blindly.)
+8. Restart File Explorer (frees leaked memory)
+powershellStop-Process -Name explorer -Force
+9. Set power plan to High Performance
+powershellpowercfg /setactive SCHEME_MIN
+10. Disable SysMain (Superfetch) — helps a lot on 4GB RAM
+powershellStop-Service "SysMain" -Force
+Set-Service "SysMain" -StartupType Disabled
+11. Disable Windows Search indexing — helps low-RAM machines
+powershellStop-Service "WSearch" -Force
+Set-Service "WSearch" -StartupType Disabled
+12. Flush DNS cache
+powershellipconfig /flushdns
+13. Run Disk Cleanup silently
+powershellcleanmgr /sagerun:1

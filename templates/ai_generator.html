@@ -693,7 +693,7 @@ async function openIngredientPopup() {
     ).style.display = "flex";
 }
 
-function submitRecipeForm() {
+async function submitRecipeForm() {
 
     uncheckedIngredients = [];
 
@@ -707,6 +707,7 @@ function submitRecipeForm() {
         );
 
     let selected = [];
+    const fetchPromises = [];
 
     allCheckboxes.forEach(box => {
 
@@ -719,6 +720,21 @@ function submitRecipeForm() {
             const ingredient =
                 box.value.toLowerCase();
 
+            const promise = fetch(
+                "/save_missing_ingredient",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        ingredient: ingredient
+                    })
+                }
+            ).catch(err => console.error("Error saving ingredient:", err));
+            
+            fetchPromises.push(promise);
+
             if (
                 ingredientAlternatives[
                     ingredient
@@ -728,28 +744,13 @@ function submitRecipeForm() {
                 uncheckedIngredients.push(
                     ingredient
                 );
-
-                fetch(
-    "/save_missing_ingredient",
-    {
-
-        method: "POST",
-
-        headers: {
-
-            "Content-Type":
-                "application/json"
-        },
-
-        body: JSON.stringify({
-
-            ingredient: ingredient
-        })
-    }
-);
             }
         }
     });
+
+    if (fetchPromises.length > 0) {
+        await Promise.all(fetchPromises);
+    }
 
     const ingredientsBox =
         document.getElementById(
