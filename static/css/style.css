@@ -918,6 +918,38 @@ select {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   DASHBOARD — SLOW AMBIENT BACKGROUND COLOR CYCLE
+   Scoped to the dashboard page only via body.dashboard-page.
+   Add class="dashboard-page" to the <body> tag of dashboard.html
+   ═══════════════════════════════════════════════════════════════ */
+
+body.dashboard-page {
+    /* Turn off the static radial-gradient texture so the cycling
+       color reads clearly underneath it */
+    background-image:
+        radial-gradient(ellipse 80% 60% at 10% 5%,  rgba(255,255,255,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 20%,  rgba(255,255,255,0.5)  0%, transparent 55%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%232d6a4f' opacity='0.04'/%3E%3C/svg%3E");
+    background-attachment: fixed;
+
+    animation: dashboardBgCycle 48s ease-in-out infinite;
+}
+
+/* Seven very light, airy stops — white → green → yellow → orange →
+   peach/rose → sky blue → lavender → back to white.
+   Long duration + ease-in-out keeps each shift imperceptibly slow. */
+@keyframes dashboardBgCycle {
+    0%   { background-color: #fffefb; }  /* white          */
+    14%  { background-color: #e5f6ea; }  /* light green    */
+    28%  { background-color: #fdf6d3; }  /* light yellow   */
+    42%  { background-color: #ffe8d1; }  /* light orange   */
+    57%  { background-color: #ffe1e4; }  /* light peach/rose */
+    71%  { background-color: #e0f1fd; }  /* light sky blue */
+    85%  { background-color: #f1e6fb; }  /* light lavender */
+    100% { background-color: #fffefb; }  /* back to white — seamless loop */
+}
+
+/* ═══════════════════════════════════════════════════════════════
    PAGE SECTIONS & LAYOUT UTILITIES
    ═══════════════════════════════════════════════════════════════ */
 
@@ -1325,6 +1357,11 @@ footer a:hover {
 
     .spinner {
         animation: spin 2s linear infinite; /* keep but slow it */
+    }
+
+    body.dashboard-page {
+        animation: none;
+        background-color: #fdf6ec; /* settle on a warm neutral */
     }
 }
 ::-webkit-scrollbar-track   { background: var(--cream-soft); }
