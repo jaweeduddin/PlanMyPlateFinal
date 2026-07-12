@@ -542,6 +542,32 @@ const ingredientAlternatives = {
         "sage"
     ]
 };
+
+function getAlternativesKey(ingredient) {
+
+    const lowerIng =
+        ingredient.toLowerCase().trim();
+
+    if (
+        ingredientAlternatives[
+            lowerIng
+        ]
+    ) {
+
+        return lowerIng;
+    }
+
+    for (const key in ingredientAlternatives) {
+
+        if (lowerIng.includes(key)) {
+
+            return key;
+        }
+    }
+
+    return null;
+}
+
 let uncheckedIngredients = [];
 
 let selectedAlternatives = [];
@@ -735,9 +761,12 @@ async function submitRecipeForm() {
             
             fetchPromises.push(promise);
 
-            uncheckedIngredients.push(
-                ingredient
-            );
+            const altKey = getAlternativesKey(ingredient);
+            if (altKey) {
+                uncheckedIngredients.push(
+                    ingredient
+                );
+            }
         }
     });
 
@@ -781,9 +810,10 @@ window.scrollTo({
             currentAlternativeIndex
         ];
 
+    const altKey = getAlternativesKey(ingredient);
     const alternatives =
         ingredientAlternatives[
-            ingredient
+            altKey
         ] || [];
 
     let optionsHTML = "";
@@ -808,7 +838,7 @@ window.scrollTo({
     const isChecked = alternatives.length === 0 ? "checked" : "";
     const labelText = alternatives.length > 0 ? "I don't have these either" : "I don't have this either";
     optionsHTML += `
-        <label class="ingredient-item" style="grid-column: span 2;">
+        <label class="ingredient-item">
 
             <input
                 type="radio"
