@@ -64,10 +64,6 @@ class SmartCart(db.Model):
         primary_key=True
     )
 
-    user_id = db.Column(
-        db.Integer
-    )
-
     ingredient = db.Column(
         db.String(100)
     )
@@ -967,10 +963,6 @@ INSTRUCTIONS:
 )
 def save_missing_ingredient():
 
-    if "user_id" not in session:
-        return {"error": "Unauthorized"}, 401
-
-    user_id = session["user_id"]
     data = request.get_json()
 
     ingredient = data.get(
@@ -978,14 +970,12 @@ def save_missing_ingredient():
     )
 
     existing = SmartCart.query.filter_by(
-        user_id=user_id,
         ingredient=ingredient
     ).first()
 
     if not existing:
 
         new_item = SmartCart(
-            user_id=user_id,
             ingredient=ingredient
         )
 
@@ -1008,8 +998,7 @@ def smart_cart():
     if "user_id" not in session:
         return redirect("/login")
 
-    user_id = session["user_id"]
-    items = SmartCart.query.filter_by(user_id=user_id).all()
+    items = SmartCart.query.all()
 
     formatted_items = []
 
@@ -1044,11 +1033,7 @@ def smart_cart():
 )
 def remove_smart_cart(id):
 
-    if "user_id" not in session:
-        return redirect("/login")
-
-    user_id = session["user_id"]
-    item = SmartCart.query.filter_by(id=id, user_id=user_id).first()
+    item = SmartCart.query.get(id)
 
     if item:
 
