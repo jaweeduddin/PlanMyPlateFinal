@@ -1,15 +1,37 @@
-from flask import Flask, render_template, request, redirect, session
+import os
+import sys
+from flask import Flask, render_template, request, redirect, session, jsonify
 from groq import Groq
 from flask_sqlalchemy import SQLAlchemy
-import os
-from sqlalchemy import inspect
-from flask import request, jsonify
-from api.dish_photos import DISH_PHOTOS
+from sqlalchemy import inspect, text
 
-app = Flask(__name__, template_folder="../templates", static_folder="../static")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+try:
+    from api.dish_photos import DISH_PHOTOS
+except ImportError:
+    try:
+        from dish_photos import DISH_PHOTOS
+    except ImportError:
+        DISH_PHOTOS = {}
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+template_dir = os.path.join(BASE_DIR, "templates")
+static_dir = os.path.join(BASE_DIR, "static")
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+
+db_url = os.environ.get("DATABASE_URL")
+if db_url:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    if os.environ.get("VERCEL"):
+        db_url = "sqlite:////tmp/database.db"
+    else:
+        db_url = "sqlite:///database.db"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "planmyplate_secret"
+app.secret_key = os.environ.get("SECRET_KEY", "planmyplate_secret")
 
 db = SQLAlchemy(app)
 
@@ -77,16 +99,17 @@ class SmartCart(db.Model):
 
 
 with app.app_context():
-    db.create_all()
     try:
+        db.create_all()
         inspector = inspect(db.engine)
-        columns = [col['name'] for col in inspector.get_columns('smart_cart')]
-        if 'user_id' not in columns:
-            db.session.execute(db.text("ALTER TABLE smart_cart ADD COLUMN user_id INTEGER;"))
-            db.session.commit()
-            print("Successfully migrated smart_cart table to include user_id column.")
+        if 'smart_cart' in inspector.get_table_names():
+            columns = [col['name'] for col in inspector.get_columns('smart_cart')]
+            if 'user_id' not in columns:
+                db.session.execute(text("ALTER TABLE smart_cart ADD COLUMN user_id INTEGER;"))
+                db.session.commit()
+                print("Successfully migrated smart_cart table to include user_id column.")
     except Exception as e:
-        print("Database migration warning:", e)
+        print("Database initialization warning:", e)
 
 emoji_map = {
 
@@ -200,7 +223,15 @@ emoji_map = {
     "jam": "🫙",
     "peanut butter": "🥜"
 }
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+def get_groq_client():
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        return None
+    try:
+        return Groq(api_key=api_key)
+    except Exception as e:
+        print("Groq initialization error:", e)
+        return None
 
 
 # ---------------- HOME ---------------- #
@@ -407,6 +438,10 @@ When the user mentions any of these, always link them to the right feature:
 - Never say "I don't know about PlanMyPlate" — you ARE PlanMyPlate.
 - Keep responses concise but complete. No filler, no unnecessary padding.
 """
+
+    client = get_groq_client()
+    if not client:
+        return {"reply": "AI Assistant is currently unavailable because the GROQ_API_KEY environment variable is not configured in project settings."}, 503
 
     try:
         response = client.chat.completions.create(
@@ -642,14 +677,18 @@ Tuesday:
 Wednesday:
 """
 
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model="llama-3.1-8b-instant"
-            )
-            result = chat_completion.choices[0].message.content
-        except Exception as e:
-            result = str(e)
+        client = get_groq_client()
+        if not client:
+            result = "Error: GROQ_API_KEY environment variable is not configured in project settings."
+        else:
+            try:
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="llama-3.1-8b-instant"
+                )
+                result = chat_completion.choices[0].message.content
+            except Exception as e:
+                result = str(e)
 
     return render_template(
         "nutrition_planner.html",
@@ -713,6 +752,12 @@ IMPORTANT RULES:
 - No explanation
 - No recipe
 """
+
+    client = get_groq_client()
+    if not client:
+        return {
+            "ingredients": "Error: GROQ_API_KEY is not configured."
+        }
 
     try:
 
@@ -798,18 +843,22 @@ Rules:
 - Do NOT include extra commentary outside the format above
 """
 
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model="llama-3.1-8b-instant"
-            )
-            generated_recipe = (
-    chat_completion
-    .choices[0]
-    .message.content
-)
-        except Exception as e:
-            generated_recipe = f"Error: {str(e)}"
+        client = get_groq_client()
+        if not client:
+            generated_recipe = "Error: GROQ_API_KEY environment variable is not configured in project settings."
+        else:
+            try:
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="llama-3.1-8b-instant"
+                )
+                generated_recipe = (
+        chat_completion
+        .choices[0]
+        .message.content
+    )
+            except Exception as e:
+                generated_recipe = f"Error: {str(e)}"
 
     return render_template(
         "ai_generator.html",
@@ -879,14 +928,18 @@ Use beautiful formatting with emojis.
 Keep language simple and clean.
 """
 
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model="llama-3.1-8b-instant"
-            )
-            result = chat_completion.choices[0].message.content
-        except Exception as e:
-            result = str(e)
+        client = get_groq_client()
+        if not client:
+            result = "Error: GROQ_API_KEY environment variable is not configured in project settings."
+        else:
+            try:
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="llama-3.1-8b-instant"
+                )
+                result = chat_completion.choices[0].message.content
+            except Exception as e:
+                result = str(e)
 
     return render_template(
         "recipe_search.html",
@@ -981,6 +1034,10 @@ INSTRUCTIONS:
 1. Step one
 2. Step two
 """
+
+    client = get_groq_client()
+    if not client:
+        return "Error: GROQ_API_KEY environment variable is not configured in project settings."
 
     try:
         chat_completion = client.chat.completions.create(
