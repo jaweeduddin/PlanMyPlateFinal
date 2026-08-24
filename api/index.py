@@ -35,6 +35,17 @@ app.secret_key = os.environ.get("SECRET_KEY", "planmyplate_secret")
 
 db = SQLAlchemy(app)
 
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    return f'<pre>500 Error:\n{traceback.format_exc()}</pre>', 500
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    import traceback
+    return f'<pre>Unhandled Exception:\n{traceback.format_exc()}</pre>', 500
+
+
 
 def clean_multiline_text(text):
     """Trim form/AI text without leaving indentation on saved recipe lines."""
