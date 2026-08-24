@@ -362,7 +362,7 @@ It is also a Progressive Web App (PWA) — installable on mobile like a native a
    - If an ingredient is unchecked, app suggests alternatives (e.g. butter → ghee, olive oil, cream)
    - Unchecked ingredients go to Smart Cart automatically
    - AI generates a full recipe: Name, Servings, Cooking Time, Calories, Protein, Ingredients, Instructions, Chef's Tips
-   - Uses: llama-3.1-8b-instant via Groq API
+   - Uses: llama3-8b-8192 via Groq API
    - Voice input supported via microphone button
 
 5. 📅 MEAL PLANNER (/meal_planner)
@@ -414,7 +414,7 @@ It is also a Progressive Web App (PWA) — installable on mobile like a native a
 🤖 AI / TECH STACK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Backend: Python Flask
-- AI Model: llama-3.1-8b-instant via Groq API
+- AI Model: llama3-8b-8192 via Groq API
 - Database: PostgreSQL (Supabase) in production, SQLite locally
 - ORM: Flask-SQLAlchemy
 - Deployment: Vercel (api/index.py entry point)
@@ -456,7 +456,7 @@ When the user mentions any of these, always link them to the right feature:
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama3-8b-8192",
             messages=[
                 {
                     "role": "system",
@@ -695,7 +695,7 @@ Wednesday:
             try:
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.1-8b-instant"
+                    model="llama3-8b-8192"
                 )
                 result = chat_completion.choices[0].message.content
             except Exception as e:
@@ -779,7 +779,7 @@ IMPORTANT RULES:
                     "content": prompt
                 }
             ],
-            model="llama-3.1-8b-instant"
+            model="llama3-8b-8192"
         )
 
         result = (
@@ -861,7 +861,7 @@ Rules:
             try:
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.1-8b-instant"
+                    model="llama3-8b-8192"
                 )
                 generated_recipe = (
         chat_completion
@@ -946,7 +946,7 @@ Keep language simple and clean.
             try:
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.1-8b-instant"
+                    model="llama3-8b-8192"
                 )
                 result = chat_completion.choices[0].message.content
             except Exception as e:
@@ -1053,7 +1053,7 @@ INSTRUCTIONS:
     try:
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model="llama-3.1-8b-instant"
+            model="llama3-8b-8192"
         )
         return chat_completion.choices[0].message.content
     except Exception as e:
