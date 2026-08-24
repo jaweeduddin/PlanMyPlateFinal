@@ -245,6 +245,26 @@ def get_groq_client():
         return None
 
 
+def create_groq_completion(client, messages):
+    configured_model = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+    models_to_try = [configured_model, "llama-3.3-70b-versatile", "gemma2-9b-it"]
+    seen = set()
+    unique_models = [m for m in models_to_try if m and not (m in seen or seen.add(m))]
+    
+    last_error = None
+    for model in unique_models:
+        try:
+            return client.chat.completions.create(
+                messages=messages,
+                model=model
+            )
+        except Exception as e:
+            last_error = e
+            print(f"Failed to generate with model '{model}': {e}")
+            continue
+    raise last_error
+
+
 # ---------------- HOME ---------------- #
 
 @app.route("/")
@@ -362,7 +382,7 @@ It is also a Progressive Web App (PWA) — installable on mobile like a native a
    - If an ingredient is unchecked, app suggests alternatives (e.g. butter → ghee, olive oil, cream)
    - Unchecked ingredients go to Smart Cart automatically
    - AI generates a full recipe: Name, Servings, Cooking Time, Calories, Protein, Ingredients, Instructions, Chef's Tips
-   - Uses: llama3-8b-8192 via Groq API
+   - Uses: Groq API
    - Voice input supported via microphone button
 
 5. 📅 MEAL PLANNER (/meal_planner)
@@ -414,7 +434,7 @@ It is also a Progressive Web App (PWA) — installable on mobile like a native a
 🤖 AI / TECH STACK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Backend: Python Flask
-- AI Model: llama3-8b-8192 via Groq API
+- AI Model: Groq API
 - Database: PostgreSQL (Supabase) in production, SQLite locally
 - ORM: Flask-SQLAlchemy
 - Deployment: Vercel (api/index.py entry point)
@@ -455,8 +475,8 @@ When the user mentions any of these, always link them to the right feature:
         return {"reply": "AI Assistant is currently unavailable because the GROQ_API_KEY environment variable is not configured in project settings."}, 503
 
     try:
-        response = client.chat.completions.create(
-            model="llama3-8b-8192",
+        response = create_groq_completion(
+            client,
             messages=[
                 {
                     "role": "system",
@@ -693,9 +713,9 @@ Wednesday:
             result = "Error: GROQ_API_KEY environment variable is not configured in project settings."
         else:
             try:
-                chat_completion = client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="llama3-8b-8192"
+                chat_completion = create_groq_completion(
+                    client,
+                    messages=[{"role": "user", "content": prompt}]
                 )
                 result = chat_completion.choices[0].message.content
             except Exception as e:
@@ -772,14 +792,14 @@ IMPORTANT RULES:
 
     try:
 
-        chat_completion = client.chat.completions.create(
+        chat_completion = create_groq_completion(
+            client,
             messages=[
                 {
                     "role": "user",
                     "content": prompt
                 }
-            ],
-            model="llama3-8b-8192"
+            ]
         )
 
         result = (
@@ -859,9 +879,9 @@ Rules:
             generated_recipe = "Error: GROQ_API_KEY environment variable is not configured in project settings."
         else:
             try:
-                chat_completion = client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="llama3-8b-8192"
+                chat_completion = create_groq_completion(
+                    client,
+                    messages=[{"role": "user", "content": prompt}]
                 )
                 generated_recipe = (
         chat_completion
@@ -944,9 +964,9 @@ Keep language simple and clean.
             result = "Error: GROQ_API_KEY environment variable is not configured in project settings."
         else:
             try:
-                chat_completion = client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="llama3-8b-8192"
+                chat_completion = create_groq_completion(
+                    client,
+                    messages=[{"role": "user", "content": prompt}]
                 )
                 result = chat_completion.choices[0].message.content
             except Exception as e:
@@ -1051,9 +1071,9 @@ INSTRUCTIONS:
         return "Error: GROQ_API_KEY environment variable is not configured in project settings."
 
     try:
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama3-8b-8192"
+        chat_completion = create_groq_completion(
+            client,
+            messages=[{"role": "user", "content": prompt}]
         )
         return chat_completion.choices[0].message.content
     except Exception as e:
